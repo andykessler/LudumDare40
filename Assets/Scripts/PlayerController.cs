@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(Rigidbody))]
 public class PlayerController : MonoBehaviour {
 
+    public Ball gameBall; // remove later, not final resting place.
 
     public float moveSpeed = 5f;
 
@@ -11,7 +13,7 @@ public class PlayerController : MonoBehaviour {
 
     public float arrivalDistanceMovement = 1f;
 
-    public float arrivalDistanceRotation = 1f;
+    public float arrivalDistanceRotation = 0.95f;
 
     public bool isMoving = false;
 
@@ -21,20 +23,30 @@ public class PlayerController : MonoBehaviour {
 
     Vector3 target;
 
-    CharacterController controller;
+    Rigidbody rb;
+
+    BallCarrier carrier;
 
     // Use this for initialization
     void Start () {
-        controller = GetComponent<CharacterController>();
+        rb = GetComponent<Rigidbody>();
+        carrier = GetComponent<BallCarrier>();
 	}
 	
 	// Update is called once per frame
 	void Update () {
         handleInput();
-        if (isMoving)
-            handleMovement();
-        if (isRotating)
-            handleRotation();
+
+        if(isMoving || isRotating)
+        {
+            dir = Vector3.Normalize(target - transform.position);
+            if(!isLookingAtTarget())
+            {
+                isRotating = true;
+            }
+        }
+        handleMovement();
+        handleRotation();
 
 	}
 
@@ -53,31 +65,65 @@ public class PlayerController : MonoBehaviour {
                 isRotating = true;
             }
         }
+
+        if (Input.GetMouseButtonUp(0))
+        {
+            Ray inputRay = Camera.main.ScreenPointToRay(Input.mousePosition);
+            RaycastHit hit;
+            if (Physics.Raycast(inputRay, out hit, LayerMask.GetMask("Opponents")))
+            {
+                // Use sendmessage to check these things instead?
+                if (hit.rigidbody != null) // check it is also tagged "Opponent"? Redundant? 
+                {
+                    BallCarrier throwTarget = hit.rigidbody.transform.GetComponent<BallCarrier>();
+                    Debug.Log(throwTarget.transform.name);
+                    carrier.SendMessage("ThrowBall", throwTarget);
+                }
+            }
+        }
+
+        // temp code to test passing ball
+        if (Input.GetKeyUp(KeyCode.Q) && !carrier.HasBall())
+        {
+            gameBall.Owner.SendMessage("ThrowBall", carrier);
+        }
+
+        if (Input.GetKeyUp(KeyCode.Alpha3) && !carrier.HasBall())
+        {
+            gameBall.SendMessage("ThrowTo", carrier);
+        }
     }
 
     // maybe can check for clicking animation here lol
     void handleMovement()
     {
+        if (!isMoving) return;
         if(Vector3.Distance(transform.position, target) < arrivalDistanceMovement)
         {
             isMoving = false;
         }
         else
         {
-            controller.Move(dir * moveSpeed * Time.deltaTime);
+            rb.MovePosition(transform.position + (dir * moveSpeed* Time.deltaTime));
         }
     }
 
     void handleRotation()
     {
-        if (Vector3.Dot(dir, transform.forward) == arrivalDistanceRotation)
+        if (!isRotating) return;
+        if (Vector3.Dot(dir, transform.forward) >= arrivalDistanceRotation)
         {
             isRotating = false;
         }
         else
         {
             Quaternion rotation = Quaternion.LookRotation(dir);
-            transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * rotationSpeed);
+            rb.MoveRotation( Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * rotationSpeed));
         }
+    }
+
+    bool isLookingAtTarget()
+    {
+        return Vector3.Dot(dir, transform.forward) >= arrivalDistanceRotation;
     }
 }
