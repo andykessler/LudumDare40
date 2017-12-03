@@ -137,7 +137,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerPrefab: {fileID: 4282728545892520, guid: e9162c7f43416574d9d868840b6e9739,
     type: 2}
-  hunterPrefab: {fileID: 4662043244968326, guid: 1cf84232968ba92498409c87cc91f611,
+  opponentPrefab: {fileID: 4282728545892520, guid: 5be5695fa7644be498a3552ef78abb0f,
+    type: 2}
+  hunterPrefab: {fileID: 4887510619252348, guid: 1cf84232968ba92498409c87cc91f611,
     type: 2}
   ballPrefab: {fileID: 4618337903744728, guid: eb9746376b042f346ab58757f5860954, type: 2}
   numPlayers: 6
@@ -236,13 +238,13 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 629656636}
-  m_LocalRotation: {x: 0.53729963, y: 0, z: 0, w: 0.8433915}
-  m_LocalPosition: {x: 0, y: 15, z: -9}
+  m_LocalRotation: {x: 0.60876137, y: 0, z: 0, w: 0.7933534}
+  m_LocalPosition: {x: 0, y: 18, z: -6}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 65, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: 75, y: 0, z: 0}
 --- !u!1 &1492335118
 GameObject:
   m_ObjectHideFlags: 0
@@ -256,7 +258,7 @@ GameObject:
   - component: {fileID: 1492335119}
   m_Layer: 8
   m_Name: Plane
-  m_TagString: Untagged
+  m_TagString: Ground
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

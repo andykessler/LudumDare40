@@ -42,8 +42,8 @@ public class BallHunter : MonoBehaviour {
     public float GLOBAL_DRAG = 0.1f;
     float globalDrag; // TODO Set this somewhere
 
-    public float DEFAULT_DAMPENING = 0.1f;
-    public float MAX_DAMPENING = 5f;
+    public float DEFAULT_DAMPENING;
+    public float MAX_DAMPENING;
     float dampening;
 
     public const float MAX_DAMPEN_TIME = 15f;
@@ -51,8 +51,8 @@ public class BallHunter : MonoBehaviour {
 
     public float maxSpeed; // is there a maximum backwards speed?
 
-    public float DEFAULT_ACCELERATION = 5f;
-    public float MAX_ACCELERATION = 25f;
+    public float DEFAULT_ACCELERATION;
+    public float MAX_ACCELERATION;
     float acceleration;
    
     private Transform target; // owner of ball
@@ -67,16 +67,17 @@ public class BallHunter : MonoBehaviour {
     void FixedUpdate()
     {
         if (!isChasing) return;
-        currDampenTime = Mathf.Max(currDampenTime-Time.deltaTime, 0f); // don't go below 0
-        float dampenRatio = currDampenTime / MAX_DAMPEN_TIME; // better pattern to use?
-        float dampenRatioComp = 1f - dampenRatio; // complement
-        acceleration = DEFAULT_ACCELERATION + (dampenRatioComp * (MAX_ACCELERATION - DEFAULT_ACCELERATION));
-        dampening = DEFAULT_DAMPENING + (dampenRatioComp * (MAX_DAMPENING - DEFAULT_DAMPENING));
+        //currDampenTime = Mathf.Max(currDampenTime-Time.deltaTime, 0f); // don't go below 0
+        //float dampenRatio = currDampenTime / MAX_DAMPEN_TIME; // better pattern to use?
+        //float dampenRatioComp = 1f - dampenRatio; // complement
+        acceleration = DEFAULT_ACCELERATION;// + (dampenRatioComp * (MAX_ACCELERATION - DEFAULT_ACCELERATION));
+        //dampening = DEFAULT_DAMPENING + (dampenRatioComp * (MAX_DAMPENING - DEFAULT_DAMPENING));
         rb.velocity = Vector3.Min(maxSpeed * rb.velocity.normalized, rb.velocity);
+        // FIXME predict logic is being weird?
         Vector3 predict = (target.transform.position - transform.position);// * (1f + (targetRb.velocity.magnitude * 5f)); // FIXME
         Vector3 diff = predict;/*- rb.velocity * Mathf.Min(Vector3.Cross(targetRb.velocity, rb.velocity).sqrMagnitude, 1f);*/
         Vector3 drag = -rb.velocity * rb.mass - rb.velocity * dampening; // attempt putting as rigid body property .drag
-        rb.AddForce(diff*acceleration + drag*GLOBAL_DRAG, ForceMode.Acceleration); // 0.1f = globaldrag
+        rb.AddForce(diff*acceleration + drag*GLOBAL_DRAG, ForceMode.Acceleration);
 
 
         Debug.Log(rb.velocity);
