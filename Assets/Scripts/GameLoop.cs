@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-//using static Configuration;
+//using static Constants;
 
 public class GameLoop : MonoBehaviour {
 
@@ -69,28 +69,31 @@ public class GameLoop : MonoBehaviour {
     
     void GiveNewBalls()
     {
-        foreach (Ball b in ballsFree)
+        for(int i = ballsFree.Count - 1; i >= 0; i--)
         {
+            Ball b = ballsFree[i];
             BallCarrier bc = GetFreeBallCarrier();
             // FIXME Null pointer exception if no free carrier
             b.transform.position = bc.transform.position; // undo the hiding!
             b.SendMessage("ThrowTo", bc);
             if (b.Owner != null)
             {
-                ballsFree.Remove(b); // does this work without screwing up the iterator?
+                ballsFree.RemoveAt(i); 
             }
         }
     }
 
     void SendNewHunters()
     {
-        foreach (BallHunter bh in huntersFree) {
+        for (int i = huntersFree.Count - 1; i >= 0; i--)
+        {
+            BallHunter bh = huntersFree[i];
             bh.transform.position = Vector3.zero; // undo the hiding!
             bh.SendMessage("FindPrecious");
             bh.SendMessage("ChasePrecious");
             if(bh.Precious != null)
             {
-                huntersFree.Remove(bh); // does this work without screwing up the iterator?
+                huntersFree.RemoveAt(i); // does this work without screwing up the iterator?
             }
         }
     }
