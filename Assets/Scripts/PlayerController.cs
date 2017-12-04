@@ -5,8 +5,6 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerController : MonoBehaviour {
 
-    public Ball gameBall; // remove later, not final resting place.
-
     public float moveSpeed;
 
     public float rotationSpeed;
