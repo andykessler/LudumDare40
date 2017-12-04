@@ -3,22 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class BallHunter : MonoBehaviour {
-    
-    public bool isChasing;
-    //public const float MAX_DAMPEN_TIME = 15f;
-
     [Header("Path Values - READ ONLY")]
     public float dampening;
-    public float maxSpeed; // is there a maximum backwards speed?
     public float acceleration;
     //public float forwardSpeed;
     //public float currDampenTime = MAX_DAMPEN_TIME;
     public float rotationSpeed;
-
     [Space(10)]
-
     [Header("Path Constants")]
-    public float GLOBAL_DRAG;
     public float DEFAULT_DAMPENING;
     public float MAX_DAMPENING;
     [Space(10)]
@@ -28,6 +20,7 @@ public class BallHunter : MonoBehaviour {
     [Space(10)]
     public float DEFAULT_FORWARD_SPEED;
     public float MAX_FORWARD_SPEED;
+    [Space(15)]
 
     // my precious!!!
     private Ball precious;
@@ -53,6 +46,7 @@ public class BallHunter : MonoBehaviour {
         }
     }
 
+    [SerializeField]
     private bool hasTakenPrecious;
     public bool HasTakenPrecious
     {
@@ -61,12 +55,14 @@ public class BallHunter : MonoBehaviour {
             hasTakenPrecious = value;
         }
     }
-   
+
+    [SerializeField]
+    private bool isChasing;
+    //public const float MAX_DAMPEN_TIME = 15f;
+
     private Transform target; // owner of ball
     private Rigidbody targetRb;
     private Rigidbody rb;
-
-    
 
     void Start()
     {
@@ -74,10 +70,13 @@ public class BallHunter : MonoBehaviour {
         //forwardSpeed = DEFAULT_FORWARD_SPEED;
         acceleration = DEFAULT_ACCELERATION;
     }
-
+    
+    [Space(5)]
+    // this is just editor stuff to check values quickly...
     public Vector3 vel = Vector3.zero, diffMem = Vector3.zero, mydrag = Vector3.zero, a = Vector3.zero, f = Vector3.zero;
-    public float distanceRatio;
+    //public float distanceRatio;
     public float radius;
+
     void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.green;
@@ -116,31 +115,26 @@ public class BallHunter : MonoBehaviour {
         // FIXME predict logic is being weird?
         //Vector3 predict = diff;// * (1f + (targetRb.velocity.magnitude * 5f)); // FIXME
         //predict = predict - rb.velocity * Mathf.Min(Vector3.Cross(targetRb.velocity, rb.velocity).sqrMagnitude, 1f);
-    
+
         //forwardSpeed = Mathf.Min(forwardSpeed + Time.deltaTime, MAX_FORWARD_SPEED);
+        //distanceRatio = 1f;// (Mathf.Min(diff.magnitude / MAX_ACCEL_DISTANCE, 1f));
+        
+        //Vector3 drag = -rb.velocity * (rb.mass + dampening); // I think this is equivalent to the above.
+        rb.drag = rb.mass + dampening; // I think this is equivalent to the above.
+        Vector3 dv = rb.drag * -rb.velocity;
 
-        Vector3 drag = -rb.velocity * (rb.mass + dampening); // I think this is equivalent to the above.
-        distanceRatio = 1f;// (Mathf.Min(diff.magnitude / MAX_ACCEL_DISTANCE, 1f));
-        Vector3 force = (diff.normalized * acceleration * distanceRatio); //+ (transform.forward * forwardSpeed);
-        f = force;
-        //Vector3 dmin = Vector3.Min(diff, diff.normalized * drag.magnitude * GLOBAL_DRAG);
-        a = force + (drag * GLOBAL_DRAG);
-        rb.AddForce(force + (drag*GLOBAL_DRAG), ForceMode.Force);
-
-        // as dampening increases, our drag increases
-        // as we get faster we also apply more drag
-        // further away from target, we apply more acceleration,
-
-        //Debug.Log(rb.velocity);
-
+        Vector3 force = diff.normalized * acceleration;// * distanceRatio;
         Quaternion rotation = Quaternion.LookRotation(diff.normalized);
+
+        rb.AddForce(force, ForceMode.Force);
         rb.MoveRotation(Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * rotationSpeed));
 
-
         // delete this soon just for debugging/inspector
+        f = force;
+        a = f + dv;
         vel = rb.velocity;
         diffMem = diff;
-        mydrag = drag;
+        mydrag = a;
     }
 
     void FindPrecious()
@@ -224,12 +218,18 @@ public class BallHunter : MonoBehaviour {
             Debug.Log("Already stole my precious!");
         }
     }
-
-    bool ownerCollided;
-    bool straightEnter;
-    float overlapPercentThreshold = 0.2f; // at least 42% overlap between colliders
-    float straightAngleThreshold = 0.30f; // dot product check (0-1) unless you want to look behind?
-    float momentumThreshold = 1f; // max momentum to kill IF you entered collision backwards
+    
+    [Space(10)]
+    [Header("Hit Checks")]
+    public float overlapPercentThreshold; // at least 42% overlap between colliders
+    //public float straightAngleThreshold; // dot product check (0-1) unless you want to look behind?
+    //public float momentumThreshold; // max momentum to kill IF you entered collision backwards
+    [Space(10)]
+    public bool ownerCollided;
+    //public bool straightEnter;
+    public bool overlapPercent;
+    //public bool straightAngle;
+    //public bool momentumCheck;
 
     void OnTriggerEnter(Collider other)
     {
@@ -237,10 +237,12 @@ public class BallHunter : MonoBehaviour {
         // other.SendMessage("Kill"); // lets see if this is valid
         BallCarrier carrier = other.transform.GetComponent<BallCarrier>();
         ownerCollided = carrier != null && carrier == Precious.Owner;
-        if(ownerCollided)
-        {
-            straightEnter = true;//Vector3.Dot(Precious.Owner.transform.position, transform.forward) > 1f - straightAngleThreshold;
-        }
+        //if(ownerCollided)
+        //{
+        //    //straightEnter = Vector3.Dot(Precious.Owner.transform.position, transform.forward) > 1f - straightAngleThreshold;
+        //    Debug.Log(Quaternion.Angle(transform.rotation, Quaternion.LookRotation(Precious.Owner.transform.position)));
+        //    straightEnter = Quaternion.Angle(transform.rotation, Quaternion.LookRotation(Precious.Owner.transform.position)) < straightAngleThreshold;
+        //}
     }
 
     void OnTriggerStay(Collider other)
@@ -250,10 +252,11 @@ public class BallHunter : MonoBehaviour {
         // Check that you went in towards carrier not backing up into it
         // Check momentum values if didn't enter collision at straight angle
         // These 3 checks together determine if you can steal the precious.
-        bool overlapPercent = Vector3.Distance(Precious.Owner.transform.position, transform.position) < overlapPercentThreshold;
-        bool straightAngle = false;//Vector3.Dot(precious.Owner.transform.position.normalized, transform.forward) > 1f - straightAngleThreshold;
-        bool momentumCheck = false;//Vector3.Magnitude(rb.mass * rb.velocity) < momentumThreshold;
-        if(overlapPercent && (straightEnter || (straightAngle && momentumCheck)))
+        overlapPercent = Vector3.Distance(Precious.Owner.transform.position, transform.position) < overlapPercentThreshold;
+        //straightAngle = Vector3.Dot(precious.Owner.transform.position.normalized, transform.forward) > 1f - straightAngleThreshold;
+        //straightAngle = Quaternion.Angle(transform.rotation, Quaternion.LookRotation(Precious.Owner.transform.position)) < straightAngleThreshold;
+        //momentumCheck = Vector3.Magnitude(rb.mass * rb.velocity) < momentumThreshold;
+        if(overlapPercent/* && (straightEnter || (straightAngle && momentumCheck))*/)
         {
             StealPrecious();
         }
@@ -264,7 +267,7 @@ public class BallHunter : MonoBehaviour {
         if (!ownerCollided || Precious == null) return;
         BallCarrier carrier = other.transform.GetComponent<BallCarrier>();
         ownerCollided = !(carrier != null && carrier == Precious.Owner);
-        straightEnter = false; // probably not neccesary since resets in ontriggerenter
+        //straightEnter = false; // probably not neccesary since resets in ontriggerenter
     }
 
 }

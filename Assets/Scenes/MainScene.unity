@@ -301,7 +301,7 @@ MonoBehaviour:
   hunterPrefab: {fileID: 4887510619252348, guid: 1cf84232968ba92498409c87cc91f611,
     type: 2}
   ballPrefab: {fileID: 4618337903744728, guid: eb9746376b042f346ab58757f5860954, type: 2}
-  numPlayers: 8
+  numPlayers: 16
 --- !u!4 &309677144
 Transform:
   m_ObjectHideFlags: 0
