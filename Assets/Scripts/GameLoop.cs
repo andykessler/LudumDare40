@@ -31,6 +31,7 @@ public class GameLoop : MonoBehaviour {
 
     // TODO Could probably parameter a single regsitration function instead of this...lol
     // map from string "name" to List<>, have function add/RemoveAt(i) on value
+    // YES DO IT : https://stackoverflow.com/questions/1299920/how-to-handle-add-to-list-event
     public void RegisterToAddFreeCarrierEvent(ListChangedEvent e){addFreeCarrierEvent -= e; addFreeCarrierEvent += e;}
     public void UnregisterToAddFreeCarrierEvent(ListChangedEvent e){addFreeCarrierEvent -= e;}
     public void RegisterToRemoveFreeCarrierEvent(ListChangedEvent e){removeFreeCarrierEvent -= e; removeFreeCarrierEvent += e;}
@@ -45,7 +46,7 @@ public class GameLoop : MonoBehaviour {
     public void UnregisterToAddFreeHunterEvent(ListChangedEvent e) { addFreeHunterEvent -= e; }
     public void RegisterToRemoveFreeHunterEvent(ListChangedEvent e) { removeFreeHunterEvent -= e; removeFreeHunterEvent += e; }
     public void UnregisterToRemoveFreeHunterEvent(ListChangedEvent e) { removeFreeHunterEvent -= e; }
-    
+
     // TODO Part of extract configs file; Make sure localScale.y is consistent with world.
     private Vector3 carrierOffsetY;
 
@@ -161,7 +162,6 @@ public class GameLoop : MonoBehaviour {
             carriersFree.Add(bc);
         }
     }
-
 
     // Create any extra balls we can make now, but do not assign ownership yet
     // Hides the ball from display until needed
