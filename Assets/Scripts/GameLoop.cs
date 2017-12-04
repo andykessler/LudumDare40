@@ -26,7 +26,7 @@ public class GameLoop : MonoBehaviour {
 	void Start () {
         opponents = new Transform[numPlayers - 1];
         float radian_ratio = (2 * Mathf.PI) / numPlayers;
-        float amplitude = 8f;
+        float amplitude = transform.localScale.z * (5f * 0.8f); 
         Vector3 carrierOffset = Vector3.up * playerPrefab.transform.localScale.y; // Make sure this is same between player/opponents
         player = Instantiate(playerPrefab, (Vector3.right * amplitude) + carrierOffset, Quaternion.identity);
         player.name = "Player";
@@ -42,7 +42,7 @@ public class GameLoop : MonoBehaviour {
             opponents[i] = t;
         }
 
-        hunter = Instantiate(hunterPrefab, Vector3.up * hunterPrefab.transform.position.y, Quaternion.identity);
+        hunter = Instantiate(hunterPrefab, carrierOffset, Quaternion.identity);
         Vector3 ballPos = new Vector3(amplitude / 2f, ballPrefab.transform.localScale.y / 2, 0f);
         ball = Instantiate(ballPrefab, ballPos, Quaternion.identity);
 

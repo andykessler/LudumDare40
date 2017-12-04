@@ -7,13 +7,13 @@ public class PlayerController : MonoBehaviour {
 
     public Ball gameBall; // remove later, not final resting place.
 
-    public float moveSpeed = 5f;
+    public float moveSpeed;
 
-    public float rotationSpeed = 15f;
+    public float rotationSpeed;
 
-    public float arrivalDistanceMovement = 1f;
+    public float arrivalDistanceMovement;
 
-    public float arrivalDistanceRotation = 0.95f;
+    public float arrivalDistanceRotation;
 
     public bool isMoving = false;
 
@@ -64,14 +64,28 @@ public class PlayerController : MonoBehaviour {
                 isMoving = true;
                 isRotating = true;
             }
+            // TODO If can't finish this, then instead just let gravity kill people with killbox?
+            //else
+            //{
+            //    // if we didnt hit, check to see if we are still walking on ground
+            //    // if we are, lets keep trying to walk towards mouse until then
+            //    // otherwise stop movement and rotation.
+            //    RaycastHit hit2;
+            //    Ray ray = new Ray(transform.position, Vector3.down);
+            //    if(!Physics.Raycast(ray, out hit2, LayerMask.GetMask("Ground")))
+            //    {
+            //        isMoving = false;
+            //        isRotating = false;
+            //    }
+            //}
         }
-
         if (Input.GetMouseButtonUp(0))
         {
             Ray inputRay = Camera.main.ScreenPointToRay(Input.mousePosition);
             RaycastHit hit;
             if (Physics.Raycast(inputRay, out hit, LayerMask.GetMask("Opponents")))
             {
+
                 // Use sendmessage to check these things instead?
                 if (hit.rigidbody != null) // check it is also tagged "Opponent"? Redundant? 
                 {
@@ -88,8 +102,12 @@ public class PlayerController : MonoBehaviour {
             gameBall.Owner.SendMessage("ThrowBall", carrier);
         }
 
+
+        // "start game"
         if (Input.GetKeyUp(KeyCode.Alpha3) && !carrier.HasBall())
         {
+            // this is a hack.
+            gameBall.transform.position = carrier.transform.position;
             gameBall.SendMessage("ThrowTo", carrier);
         }
     }
