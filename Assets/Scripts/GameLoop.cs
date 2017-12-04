@@ -99,11 +99,11 @@ public class GameLoop : MonoBehaviour {
             // FIXME Null pointer exception if no free carrier
             b.transform.position = bc.transform.position; // undo the hiding!
 
-            // FIXME There is delay with SendMessage, can't know if there was success with this method
             b.SendMessage("ThrowTo", bc); 
             if (b.Owner != null)
             {
                 ballsFree.RemoveAt(i);
+                removeFreeBallEvent();
             }
         }
     }
@@ -117,10 +117,10 @@ public class GameLoop : MonoBehaviour {
             bh.SendMessage("FindPrecious"); // FIXME if all precious occupied but there is at least 1 precious, go after it
             bh.SendMessage("ChasePrecious");
 
-            // FIXME There is delay with SendMessage, can't know if there was success with this method
             if (bh.Precious != null)
             {
-                huntersFree.RemoveAt(i); // does this work without screwing up the iterator?
+                huntersFree.RemoveAt(i);
+                removeFreeHunterEvent();
             }
         }
     }
@@ -130,6 +130,7 @@ public class GameLoop : MonoBehaviour {
         // TODO Can change to random index or based on scores
         BallCarrier bc = carriersFree[0];
         carriersFree.Remove(bc);
+        removeFreeCarrierEvent();
         return bc;
     }
 
@@ -160,6 +161,7 @@ public class GameLoop : MonoBehaviour {
             BallCarrier bc = t.GetComponent<BallCarrier>();
             carriers.Add(bc);
             carriersFree.Add(bc);
+            addFreeCarrierEvent();
         }
     }
 
@@ -178,6 +180,7 @@ public class GameLoop : MonoBehaviour {
                 Ball b = t.GetComponent<Ball>();
                 balls.Add(b);
                 ballsFree.Add(b); // TODO Hide until needed, use add/remove listener to toggle display
+                addFreeBallEvent();
             }
         }
     }
@@ -196,6 +199,7 @@ public class GameLoop : MonoBehaviour {
                 BallHunter bh = t.GetComponent<BallHunter>();
                 hunters.Add(bh);
                 huntersFree.Add(bh); // TODO Hide until needed, use add/remove listener to toggle display
+                addFreeHunterEvent();
             }
         }
     }
