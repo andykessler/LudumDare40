@@ -20,10 +20,32 @@ public class GameLoop : MonoBehaviour {
     public static int MAX_NUM_LIVES = 3; // give everyone this many lives lives
 
     // TODO Create event listeners for +/- for each list (mainly free lists)
+
+    public delegate void ListChangedEvent();
     public static List<BallCarrier> carriers, carriersFree; // carriersDead?
     public static List<Ball> balls, ballsFree; // ballsDead?
     public static List<BallHunter> hunters, huntersFree; // huntersDead?
+    event ListChangedEvent addFreeCarrierEvent, removeFreeCarrierEvent;
+    event ListChangedEvent addFreeBallEvent, removeFreeBallEvent;
+    event ListChangedEvent addFreeHunterEvent, removeFreeHunterEvent;
 
+    // TODO Could probably parameter a single regsitration function instead of this...lol
+    // map from string "name" to List<>, have function add/RemoveAt(i) on value
+    public void RegisterToAddFreeCarrierEvent(ListChangedEvent e){addFreeCarrierEvent -= e; addFreeCarrierEvent += e;}
+    public void UnregisterToAddFreeCarrierEvent(ListChangedEvent e){addFreeCarrierEvent -= e;}
+    public void RegisterToRemoveFreeCarrierEvent(ListChangedEvent e){removeFreeCarrierEvent -= e; removeFreeCarrierEvent += e;}
+    public void UnregisterToRemoveFreeCarrierEvent(ListChangedEvent e){removeFreeCarrierEvent -= e;}
+
+    public void RegisterToAddFreeBallEvent(ListChangedEvent e) { addFreeBallEvent -= e; addFreeBallEvent += e; }
+    public void UnregisterToAddFreeBallEvent(ListChangedEvent e) { addFreeBallEvent -= e; }
+    public void RegisterToRemoveFreeBallEvent(ListChangedEvent e) { removeFreeBallEvent -= e; removeFreeBallEvent += e; }
+    public void UnregisterToRemoveFreeBallEvent(ListChangedEvent e) { removeFreeBallEvent -= e; }
+
+    public void RegisterToAddFreeHunterEvent(ListChangedEvent e) { addFreeHunterEvent -= e; addFreeHunterEvent += e; }
+    public void UnregisterToAddFreeHunterEvent(ListChangedEvent e) { addFreeHunterEvent -= e; }
+    public void RegisterToRemoveFreeHunterEvent(ListChangedEvent e) { removeFreeHunterEvent -= e; removeFreeHunterEvent += e; }
+    public void UnregisterToRemoveFreeHunterEvent(ListChangedEvent e) { removeFreeHunterEvent -= e; }
+    
     // TODO Part of extract configs file; Make sure localScale.y is consistent with world.
     private Vector3 carrierOffsetY;
 
@@ -75,10 +97,12 @@ public class GameLoop : MonoBehaviour {
             BallCarrier bc = GetFreeBallCarrier();
             // FIXME Null pointer exception if no free carrier
             b.transform.position = bc.transform.position; // undo the hiding!
-            b.SendMessage("ThrowTo", bc);
+
+            // FIXME There is delay with SendMessage, can't know if there was success with this method
+            b.SendMessage("ThrowTo", bc); 
             if (b.Owner != null)
             {
-                ballsFree.RemoveAt(i); 
+                ballsFree.RemoveAt(i);
             }
         }
     }
@@ -89,9 +113,11 @@ public class GameLoop : MonoBehaviour {
         {
             BallHunter bh = huntersFree[i];
             bh.transform.position = Vector3.zero; // undo the hiding!
-            bh.SendMessage("FindPrecious");
+            bh.SendMessage("FindPrecious"); // FIXME if all precious occupied but there is at least 1 precious, go after it
             bh.SendMessage("ChasePrecious");
-            if(bh.Precious != null)
+
+            // FIXME There is delay with SendMessage, can't know if there was success with this method
+            if (bh.Precious != null)
             {
                 huntersFree.RemoveAt(i); // does this work without screwing up the iterator?
             }
