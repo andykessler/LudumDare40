@@ -99,16 +99,7 @@ public class PlayerController : MonoBehaviour {
         // temp code to test passing ball
         if (Input.GetKeyUp(KeyCode.Q) && !carrier.HasBall())
         {
-            gameBall.Owner.SendMessage("ThrowBall", carrier);
-        }
-
-
-        // "start game"
-        if (Input.GetKeyUp(KeyCode.Alpha3) && !carrier.HasBall())
-        {
-            // this is a hack.
-            gameBall.transform.position = carrier.transform.position;
-            gameBall.SendMessage("ThrowTo", carrier);
+            GameLoop.ballsFree[0].Owner.SendMessage("ThrowBall", carrier);
         }
     }
 
