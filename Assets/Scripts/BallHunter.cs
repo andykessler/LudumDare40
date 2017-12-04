@@ -126,7 +126,7 @@ public class BallHunter : MonoBehaviour {
         Vector3 force = diff.normalized * acceleration;// * distanceRatio;
         Quaternion rotation = Quaternion.LookRotation(diff.normalized);
 
-        rb.AddForce(force, ForceMode.Force);
+        rb.AddForce(force * Time.deltaTime, ForceMode.Impulse); // I might like impulse better :O
         rb.MoveRotation(Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * rotationSpeed));
 
         // delete this soon just for debugging/inspector
