@@ -1,5 +1,7 @@
 # Ludum Dare 40 : _The more you have, the worse it is._
 
+https://akessler.itch.io/ld40
+
 Thanks for playing my first Ludum Dare game! I look forward to hearing your feedback.
 
 # About
