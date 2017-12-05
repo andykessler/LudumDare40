@@ -87,10 +87,13 @@ public class GameLoop : MonoBehaviour {
         CreateHunterPool(); // get maximum number of balls spawned & ready to display
     }
 
+    bool gameStarted = false;
     void Update()
     {
+        if (gameStarted) return;
         if(Input.GetKeyUp(KeyCode.Space))
         {
+            gameStarted = true;
             GiveFreeBalls();
             SendFreeHunters();
         }
