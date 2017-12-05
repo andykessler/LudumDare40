@@ -16,7 +16,7 @@ public class BallHunter : MonoBehaviour {
     [Space(10)]
     public float DEFAULT_ACCELERATION;
     public float MAX_ACCELERATION;
-    public float MAX_ACCEL_DISTANCE;
+    public float MAX_ACCEL_DISTANCE; // TODO Try bringing this effect back
     [Space(10)]
     public float DEFAULT_FORWARD_SPEED;
     public float MAX_FORWARD_SPEED;

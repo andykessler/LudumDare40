@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 // could inherit base values from parent controller class
 public class OpponentController : MonoBehaviour {
@@ -8,23 +6,17 @@ public class OpponentController : MonoBehaviour {
     public const float MAX_SPEED = 50f;
     public float moveSpeed;
     public float rotationSpeed;
-    public float arrivalDistanceMovement;
-    public float arrivalDistanceRotation;
-    
-    // use this to do circles and make more intelligent paths
-    public const float DEFAULT_CIRCLE_RADIUS = 25f;
-    private float circlePathTimer;
 
     public const float DEFAULT_THROW_TIMER = 3f;
     private float throwBallTimer;
-    
+    private float changeDirectionTimer;
+
+    Quaternion targetRotation;
+
     Vector3 dir;
     Vector3 target;
     Rigidbody rb;
     BallCarrier self;
-
-    float changeDirectionTimer;
-    Quaternion targetRotation;
 
     void Start()
     {
@@ -70,11 +62,8 @@ public class OpponentController : MonoBehaviour {
 
     void HandleMovement()
     {
-        dir = transform.forward;//(transform.position + transform.forward) - transform.position;
-        //Vector3 f = transform.position + dir * Time.deltaTime;
+        dir = transform.forward;
         rb.AddForce(dir * moveSpeed, ForceMode.Impulse);
-        //rb.AddForce(transform.position)
-
     }
 
     void HandleRotation()
@@ -93,7 +82,7 @@ public class OpponentController : MonoBehaviour {
             changeDirectionTimer = Random.Range(0.25f, 1.5f); // extract to constant
 
         }
-        rb.MoveRotation(Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed)); // Time.deltaTime?
+        rb.MoveRotation(Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed)); // Time.deltaTime
     }
  
 }
