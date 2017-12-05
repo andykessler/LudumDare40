@@ -119,6 +119,7 @@ public class Ball : MonoBehaviour {
             GameLoop.carriersFree.Add(Owner);
             Owner.ball = null;
         }
+        //bh.Precious = null;
         Owner = null;
     }
 }

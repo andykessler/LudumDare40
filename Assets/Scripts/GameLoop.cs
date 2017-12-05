@@ -17,7 +17,7 @@ public class GameLoop : MonoBehaviour {
     public static Color[] playerColors = { Color.red, Color.blue, Color.green, Color.yellow, Color.magenta, Color.white };
 
     // TODO Use numLivesLeft/NumPlayersLeft to create key for # of new balls/hounds to spawn
-    public static int numPlayers = 4;
+    public static int numPlayers = 6;
     public static int MAX_NUM_LIVES = 3; // give everyone this many lives
 
     
@@ -25,28 +25,27 @@ public class GameLoop : MonoBehaviour {
     public static List<BallCarrier> carriers, carriersFree, carriersDead;
     public static List<Ball> balls, ballsFree; // FIXME ballsFree represents two things, split it out
     public static List<BallHunter> hunters, huntersFree; // huntersDead?
-    static event ListChangedEvent addFreeCarrierEvent, removeFreeCarrierEvent;
-    static event ListChangedEvent addFreeBallEvent, removeFreeBallEvent;
-    static event ListChangedEvent addFreeHunterEvent, removeFreeHunterEvent;
 
-    // TODO Could probably parameter a single regsitration function instead of this...lol
-    // map from string "name" to List<>, have function add/RemoveAt(i) on value
-    // YES DO IT : https://stackoverflow.com/questions/1299920/how-to-handle-add-to-list-event
-    // Change to ObservableList<Object>
-    public void RegisterToAddFreeCarrierEvent(ListChangedEvent e){addFreeCarrierEvent -= e; addFreeCarrierEvent += e;}
-    public void UnregisterToAddFreeCarrierEvent(ListChangedEvent e){addFreeCarrierEvent -= e;}
-    public void RegisterToRemoveFreeCarrierEvent(ListChangedEvent e){removeFreeCarrierEvent -= e; removeFreeCarrierEvent += e;}
-    public void UnregisterToRemoveFreeCarrierEvent(ListChangedEvent e){removeFreeCarrierEvent -= e;}
-
-    public void RegisterToAddFreeBallEvent(ListChangedEvent e) { addFreeBallEvent -= e; addFreeBallEvent += e; }
-    public void UnregisterToAddFreeBallEvent(ListChangedEvent e) { addFreeBallEvent -= e; }
-    public void RegisterToRemoveFreeBallEvent(ListChangedEvent e) { removeFreeBallEvent -= e; removeFreeBallEvent += e; }
-    public void UnregisterToRemoveFreeBallEvent(ListChangedEvent e) { removeFreeBallEvent -= e; }
-
-    public void RegisterToAddFreeHunterEvent(ListChangedEvent e) { addFreeHunterEvent -= e; addFreeHunterEvent += e; }
-    public void UnregisterToAddFreeHunterEvent(ListChangedEvent e) { addFreeHunterEvent -= e; }
-    public void RegisterToRemoveFreeHunterEvent(ListChangedEvent e) { removeFreeHunterEvent -= e; removeFreeHunterEvent += e; }
-    public void UnregisterToRemoveFreeHunterEvent(ListChangedEvent e) { removeFreeHunterEvent -= e; }
+    // lol nvm prolly dont need any of this, but could to remember in future...
+    //// TODO Could probably parameter a single regsitration function instead of this...
+    //// map from string "name" to List<>, have function add/RemoveAt(i) on value
+    //// YES DO IT : https://stackoverflow.com/questions/1299920/how-to-handle-add-to-list-event
+    //static event ListChangedEvent addFreeCarrierEvent, removeFreeCarrierEvent;
+    //static event ListChangedEvent addFreeBallEvent, removeFreeBallEvent;
+    //static event ListChangedEvent addFreeHunterEvent, removeFreeHunterEvent;
+    //// Change to ObservableList<Object>
+    //public void RegisterToAddFreeCarrierEvent(ListChangedEvent e){addFreeCarrierEvent -= e; addFreeCarrierEvent += e;}
+    //public void UnregisterToAddFreeCarrierEvent(ListChangedEvent e){addFreeCarrierEvent -= e;}
+    //public void RegisterToRemoveFreeCarrierEvent(ListChangedEvent e){removeFreeCarrierEvent -= e; removeFreeCarrierEvent += e;}
+    //public void UnregisterToRemoveFreeCarrierEvent(ListChangedEvent e){removeFreeCarrierEvent -= e;}
+    //public void RegisterToAddFreeBallEvent(ListChangedEvent e) { addFreeBallEvent -= e; addFreeBallEvent += e; }
+    //public void UnregisterToAddFreeBallEvent(ListChangedEvent e) { addFreeBallEvent -= e; }
+    //public void RegisterToRemoveFreeBallEvent(ListChangedEvent e) { removeFreeBallEvent -= e; removeFreeBallEvent += e; }
+    //public void UnregisterToRemoveFreeBallEvent(ListChangedEvent e) { removeFreeBallEvent -= e; }
+    //public void RegisterToAddFreeHunterEvent(ListChangedEvent e) { addFreeHunterEvent -= e; addFreeHunterEvent += e; }
+    //public void UnregisterToAddFreeHunterEvent(ListChangedEvent e) { addFreeHunterEvent -= e; }
+    //public void RegisterToRemoveFreeHunterEvent(ListChangedEvent e) { removeFreeHunterEvent -= e; removeFreeHunterEvent += e; }
+    //public void UnregisterToRemoveFreeHunterEvent(ListChangedEvent e) { removeFreeHunterEvent -= e; }
 
     // TODO Part of extract configs file; Make sure localScale.y is consistent with world.
     private static Vector3 carrierOffsetY;
@@ -99,9 +98,9 @@ public class GameLoop : MonoBehaviour {
     
     static void GiveFreeBalls()
     {
+        // TODO Send out no more than MAX count (will allow decrease over time)
         for(int i = ballsFree.Count - 1; i >= 0; i--)
         {
-            Debug.Log(ballsFree.Count);
             if(ballsFree[i].Owner != null)
             {
                 // do anything here?
@@ -126,12 +125,14 @@ public class GameLoop : MonoBehaviour {
         }
     }
 
+
     static void SendFreeHunters()
     {
+        // TODO Send out no more than MAX count (will allow decrease over time)
         for (int i = huntersFree.Count - 1; i >= 0; i--)
         {
             BallHunter bh = huntersFree[i];
-            bh.transform.position = Vector3.zero; // undo the hiding!
+            //bh.transform.position = Vector3.zero; // undo the hiding!
             bh.SendMessage("FindPrecious"); // FIXME if all precious occupied but there is at least 1 precious, go after it
             bh.SendMessage("ChasePrecious");
 
@@ -160,11 +161,29 @@ public class GameLoop : MonoBehaviour {
         }
     }
 
+    public static Ball GetFreeBall()
+    {
+        // TODO Can change to random index or based on scores
+        if (ballsFree.Count > 0)
+        {
+            Ball b = ballsFree[0];
+            ballsFree.Remove(b);
+            return b;
+        }
+        else
+        {
+            Debug.Log("No free carriers!");
+            return null;
+        }
+    }
+
     // need to also have a check for total lives left and what to do for count
     static void UpdateMaxBallHunterCount()
     {
-        maxBallCount = numPlayersLeft / 2;
-        maxHunterCount = maxBallCount;
+        //maxBallCount = numPlayersLeft / 2;
+        //maxHunterCount = maxBallCount;
+        maxBallCount = 1;
+        maxHunterCount = 1;
     }
 
     void CreateCarriers()
@@ -172,7 +191,6 @@ public class GameLoop : MonoBehaviour {
         // TODO part of the extract configs, ensure scale is consistent
         float amplitude = transform.localScale.z * (5f * 0.8f);
         float radian_ratio = (2 * Mathf.PI) / numPlayers;
-
 
         for (int i = 0; i < numPlayers; i++)
         {
@@ -198,7 +216,6 @@ public class GameLoop : MonoBehaviour {
     // Hides the ball from display until needed
     static void CreateBallPool()
     {
-
         if (balls.Count < maxBallCount)
         {
             for (int i = balls.Count; i < maxBallCount; i++)
@@ -250,34 +267,27 @@ public class GameLoop : MonoBehaviour {
         // dead guy shouldnt be doing things! some portal object maybe?
         // fix so we dont pass dead twice  
 
-        // Respawn after 5 seconds if can
-        dead.StartCoroutine(WaitAndRespawn(dead, 5f));
-        // seperate from giving and chasing
-        dead.StartCoroutine(WaitGiveChaseBalls(7.5f));
+        dead.StartCoroutine(WaitAndRespawn(dead, 2f));
+        dead.StartCoroutine(WaitGiveChaseBalls(4f));
     }
 
     private static IEnumerator WaitAndRespawn(BallCarrier dead, float waitTime)
     {
-        while (true)
-        {
-            yield return new WaitForSeconds(waitTime);
-            print("WaitAndRespawn " + Time.time);
-            UpdateMaxBallHunterCount();
-            CreateBallPool();
-            CreateHunterPool();
-            dead.Respawn();
-        }
+        yield return new WaitForSeconds(waitTime);
+        print("WaitAndRespawn " + Time.time);
+        UpdateMaxBallHunterCount();
+        CreateBallPool();
+        CreateHunterPool();
+        dead.Respawn();
     }
 
+    // seperate give and chase into seperate routines
     private static IEnumerator WaitGiveChaseBalls(float waitTime)
     {
-        while (true)
-        {
-            yield return new WaitForSeconds(waitTime);
-            print("WaitAndGiveChaseBalls " + Time.time);
-            GiveFreeBalls();
-            SendFreeHunters();
-        }
+        yield return new WaitForSeconds(waitTime);
+        print("WaitAndGiveChaseBalls " + Time.time);
+        GiveFreeBalls();
+        SendFreeHunters();
     }
 
 }

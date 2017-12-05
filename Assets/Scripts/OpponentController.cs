@@ -29,6 +29,9 @@ public class OpponentController : MonoBehaviour {
     void Start()
     {
         rb = GetComponent<Rigidbody>();
+        rb.velocity = Vector3.zero;
+        target = Vector3.zero;
+        dir = Vector3.zero;
         self = GetComponent<BallCarrier>();
         throwBallTimer = Random.Range(DEFAULT_THROW_TIMER * .5f, DEFAULT_THROW_TIMER * 1.5f);
     }
@@ -87,7 +90,7 @@ public class OpponentController : MonoBehaviour {
             Vector3 angles = transform.rotation.eulerAngles;
             angles.y = (angles.y + rotation.eulerAngles.y) % 360;
             targetRotation = Quaternion.Euler(angles);
-            changeDirectionTimer = Random.Range(0.5f, 2f); // extract to constant
+            changeDirectionTimer = Random.Range(0.25f, 1.5f); // extract to constant
 
         }
         rb.MoveRotation(Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed)); // Time.deltaTime?

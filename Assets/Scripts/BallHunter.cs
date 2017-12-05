@@ -147,14 +147,13 @@ public class BallHunter : MonoBehaviour {
 
     void FindPrecious()
     {
-        //GameObject[] balls = GameObject.FindGameObjectsWithTag("Ball"); 
-        // reference ballsFree of GameLoop
-        Ball[] balls = GameLoop.ballsFree.ToArray();
-        if (balls.Length > 0)
+        // FIXME If you stop chasing precious before you capture, they will not be put back into free list
+        StopChasePrecious(); 
+        Ball b = GameLoop.GetFreeBall();
+        if (b != null)
         {
             Debug.Log("Found a precious!");
-            // FIXME take first one for now, later get based on func/rand?
-            Precious = balls[0]; /*.GetComponent<Ball>();*/
+            Precious = b;
             HasTakenPrecious = false;
         }
         else
@@ -174,6 +173,7 @@ public class BallHunter : MonoBehaviour {
         }
         else
         {
+            Debug.Log(GameLoop.ballsFree.Count);
             Debug.Log("No precious to chase!");
             isChasing = false; // does this make sense to be here?
             dampening = DEFAULT_DAMPENING;
@@ -221,7 +221,6 @@ public class BallHunter : MonoBehaviour {
         {
             StopChasePrecious();
             Precious = null; // will null target
-            
         }
     }
 
@@ -229,33 +228,16 @@ public class BallHunter : MonoBehaviour {
     {
         if(!HasTakenPrecious)
         {
-            // instead inform gameloop we captured something?
-            // or inform the ball we captured it? or just leave it here?
-
-            // we captured the ball somehow
-            // add the ball to free list. changes it owner to none
-            // make sure player doesnt have reference to ball anymore
-            // add all hunters who were chasing this ball to free list, 
-            // ...stopping chase, setting precious to null, and wait for instruction
-
             Debug.Log("Stealing my precious!");
             //StopChasePrecious(); // event handlers got this (on owner changed to null)
             Precious.Owner.SendMessage("Kill");
             Precious.Capture(this);
 
-            // ensure that player lives remaining decreases by 1
-            // call update balls/hunters count
-            // respawn code, shortly after also gives new balls and sends new hunters (delay between each event)
-
-            // WE ARE TREATING RESPAWN AS THE CLAIM EVENT ALMOST
-
             //Precious = null; // this messed stuff up kinda
             // caused the creation of hastakenprecious bool
             // used for proper ontriggerexit event handling -- needed, prolly not?
-
             HasTakenPrecious = true;
-            Precious = null;
-
+            //Precious = null;
 
             // what about instead assigning to Vector3.zero;
             rb.AddForce(-rb.velocity, ForceMode.VelocityChange); // instantly stop our velocity
@@ -284,7 +266,6 @@ public class BallHunter : MonoBehaviour {
     {
         //if (other.tag == "Wall") rb.velocity = -rb.velocity * 0.3f; // lose some speed
         if (ownerCollided || Precious == null) return;
-        // other.SendMessage("Kill"); // lets see if this is valid
         BallCarrier carrier = other.transform.GetComponent<BallCarrier>();
         ownerCollided = carrier != null && carrier == Precious.Owner;
         //if(ownerCollided)
@@ -293,8 +274,6 @@ public class BallHunter : MonoBehaviour {
         //    Debug.Log(Quaternion.Angle(transform.rotation, Quaternion.LookRotation(Precious.Owner.transform.position)));
         //    straightEnter = Quaternion.Angle(transform.rotation, Quaternion.LookRotation(Precious.Owner.transform.position)) < straightAngleThreshold;
         //}
-
-        
     }
 
     void OnTriggerStay(Collider other)
@@ -321,5 +300,4 @@ public class BallHunter : MonoBehaviour {
         ownerCollided = !(carrier != null && carrier == Precious.Owner);
         //straightEnter = false; // probably not neccesary since resets in ontriggerenter
     }
-
 }

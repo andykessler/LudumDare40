@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class BallCarrier : MonoBehaviour {
 
-    public const float DEFAULT_THROW_STRENGTH = 100f;
+    public const float DEFAULT_THROW_STRENGTH = 200f;
     
     public Ball ball;
 
@@ -16,10 +16,13 @@ public class BallCarrier : MonoBehaviour {
 
     public int currentLives; // add maxlives var?
 
+    Renderer[] renderers;
+
 	// Use this for initialization
 	void Start () {
         spawnPosition = transform.position;
         spawnQuaternion = transform.rotation;
+        renderers = GetComponentsInChildren<Renderer>();
 	}
 
     void ThrowBall(BallCarrier target)
@@ -51,7 +54,20 @@ public class BallCarrier : MonoBehaviour {
 
     void Kill()
     {
-        Debug.Log("Carrier killed.");
+        Debug.Log("Carrier killed: " + name);
+
+        enabled = false;
+        foreach (Renderer r in renderers) r.enabled = false; // also disable any controller on it?
+
+        // TODO hacky we will fix this with inheritance later...
+        if(name.StartsWith("Human"))
+        {
+            GetComponent<PlayerController>().enabled = false;
+        } else
+        {
+            GetComponent<OpponentController>().enabled = false;
+        }
+
         GameLoop.KillAndRespawnIfHaveLife(this); // call this after short delay.
         // remove 1 from life
         // Call death animation/death script, aftwerwards...
@@ -62,9 +78,22 @@ public class BallCarrier : MonoBehaviour {
 
     public void Respawn()
     {
-        Debug.Log("Respawning Character");
+        Debug.Log("Respawning carrier: " + name);
+
+        enabled = true;
+        foreach (Renderer r in renderers) r.enabled = true; // also enable any controller on it?
+
+        // TODO hacky we will fix this with inheritance later...
+        if (name.StartsWith("Human"))
+        {
+            GetComponent<PlayerController>().enabled = true;
+        }
+        else
+        {
+            GetComponent<OpponentController>().enabled = true;
+        }
+
         transform.SetPositionAndRotation(spawnPosition, spawnQuaternion);
-        // show carrier once set in position
     }
 
     public bool HasBall()
