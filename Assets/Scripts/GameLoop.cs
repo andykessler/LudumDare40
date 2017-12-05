@@ -17,9 +17,8 @@ public class GameLoop : MonoBehaviour {
     public static Color[] playerColors = { Color.red, Color.blue, Color.green, Color.yellow, Color.magenta, Color.white };
 
     // TODO Use numLivesLeft/NumPlayersLeft to create key for # of new balls/hounds to spawn
-    public static int numPlayers = 6;
+    public static int numPlayers = 1;
     public static int MAX_NUM_LIVES = 3; // give everyone this many lives
-
     
     public delegate void ListChangedEvent();
     public static List<BallCarrier> carriers, carriersFree, carriersDead;
@@ -292,5 +291,4 @@ public class GameLoop : MonoBehaviour {
         GiveFreeBalls();
         SendFreeHunters();
     }
-
 }
