@@ -5,6 +5,8 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerController : MonoBehaviour {
 
+    public const float MAX_SPEED = 50f;
+
     public float moveSpeed;
 
     public float rotationSpeed;
@@ -23,16 +25,27 @@ public class PlayerController : MonoBehaviour {
 
     Rigidbody rb;
 
-    BallCarrier carrier;
+    BallCarrier self;
+
+    private Vector3 fixedUpdateForce;// aka FU force
 
     // Use this for initialization
     void Start () {
         rb = GetComponent<Rigidbody>();
-        carrier = GetComponent<BallCarrier>();
+        self = GetComponent<BallCarrier>();
 	}
-	
-	// Update is called once per frame
-	void Update () {
+
+    private void FixedUpdate()
+    {
+        if (rb.velocity.magnitude > MAX_SPEED)
+        {
+            rb.velocity = rb.velocity.normalized * MAX_SPEED;
+        }
+        rb.AddForce(moveSpeed * dir.normalized, ForceMode.Impulse); // * Time.deltaTime; ?
+    }
+
+    // Update is called once per frame
+    void Update () {
         handleInput();
 
         if(isMoving || isRotating)
@@ -62,20 +75,6 @@ public class PlayerController : MonoBehaviour {
                 isMoving = true;
                 isRotating = true;
             }
-            // TODO If can't finish this, then instead just let gravity kill people with killbox?
-            //else
-            //{
-            //    // if we didnt hit, check to see if we are still walking on ground
-            //    // if we are, lets keep trying to walk towards mouse until then
-            //    // otherwise stop movement and rotation.
-            //    RaycastHit hit2;
-            //    Ray ray = new Ray(transform.position, Vector3.down);
-            //    if(!Physics.Raycast(ray, out hit2, LayerMask.GetMask("Ground")))
-            //    {
-            //        isMoving = false;
-            //        isRotating = false;
-            //    }
-            //}
         }
         if (Input.GetMouseButtonUp(0))
         {
@@ -89,15 +88,15 @@ public class PlayerController : MonoBehaviour {
                 {
                     BallCarrier throwTarget = hit.rigidbody.transform.GetComponent<BallCarrier>();
                     Debug.Log(throwTarget.transform.name);
-                    carrier.SendMessage("ThrowBall", throwTarget);
+                    self.SendMessage("ThrowBall", throwTarget);
                 }
             }
         }
 
-        // temp code to test passing ball
-        if (Input.GetKeyUp(KeyCode.Q) && !carrier.HasBall())
+        // temp test code to force pass ball
+        if (Input.GetKeyUp(KeyCode.Q) && !self.HasBall())
         {
-            GameLoop.ballsFree[0].Owner.SendMessage("ThrowBall", carrier);
+            GameLoop.ballsFree[0].Owner.SendMessage("ThrowBall", self);
         }
     }
 
@@ -108,10 +107,14 @@ public class PlayerController : MonoBehaviour {
         if(Vector3.Distance(transform.position, target) < arrivalDistanceMovement)
         {
             isMoving = false;
+            //fixedUpdateForce = Vector3.zero;
+
         }
         else
         {
-            rb.MovePosition(transform.position + (dir * moveSpeed* Time.deltaTime));
+            //rb.AddForce(transform.position + (transform.forward * moveSpeed * Time.deltaTime));
+            //rb.AddForce(moveSpeed * dir, ForceMode.Impulse); // * Time.deltaTime; ?
+            fixedUpdateForce = moveSpeed * dir.normalized;
         }
     }
 
@@ -122,11 +125,10 @@ public class PlayerController : MonoBehaviour {
         {
             isRotating = false;
         }
-        else
-        {
-            Quaternion rotation = Quaternion.LookRotation(dir);
-            rb.MoveRotation( Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * rotationSpeed));
-        }
+
+        Quaternion rotation = Quaternion.LookRotation(dir);
+        rb.MoveRotation(Quaternion.Slerp(transform.rotation, rotation, rotationSpeed));
+        
     }
 
     bool isLookingAtTarget()
