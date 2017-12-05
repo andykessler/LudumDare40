@@ -6,20 +6,13 @@ using UnityEngine;
 
 public class GameLoop : MonoBehaviour {
 
+    // do we need own reference?
     private static Transform playerPrefab;
     private static Transform opponentPrefab;
     private static Transform hunterPrefab;
     private static Transform ballPrefab;
 
-    // TODO Validate through bitwise XOR on isHumanPlayer, should only be 1
-    public static bool[] isHumanPlayers = { true, false, false, false, false, false };
-    public static string[] playerNames = { "Human0", "Bot1", "Bot2", "Bot3", "Bot4", "Bot5" }; // could just be made from bool and color
-    public static Color[] playerColors = { Color.red, Color.blue, Color.green, Color.yellow, Color.magenta, Color.white };
-
-    // TODO Use numLivesLeft/NumPlayersLeft to create key for # of new balls/hounds to spawn
-    public static int numPlayers = 1;
-    public static int MAX_NUM_LIVES = 3; // give everyone this many lives
-    
+    // clean this up...
     public delegate void ListChangedEvent();
     public static List<BallCarrier> carriers, carriersFree, carriersDead;
     public static List<Ball> balls, ballsFree; // FIXME ballsFree represents two things, split it out
@@ -78,8 +71,8 @@ public class GameLoop : MonoBehaviour {
 
     // Use this for initialization (see if we want to move any up to awake)
     void Start() {
-        numPlayersLeft = numPlayers;
-        numLivesLeft = numPlayers * MAX_NUM_LIVES;
+        numPlayersLeft = Constants.numPlayers;
+        numLivesLeft = Constants.numPlayers * Constants.MAX_NUM_LIVES;
         CreateCarriers(); // creates and places carriers evenly along unit circle
         UpdateMaxBallHunterCount(); // checks map if we are should send in different counts
         CreateBallPool(); // get maximum number of balls spawned & ready to display
@@ -182,30 +175,30 @@ public class GameLoop : MonoBehaviour {
     // need to also have a check for total lives left and what to do for count
     static void UpdateMaxBallHunterCount()
     {
-        //maxBallCount = numPlayersLeft / 2;
-        //maxHunterCount = maxBallCount;
-        maxBallCount = 1;
-        maxHunterCount = 1;
+
+        maxBallCount = (int)(numPlayersLeft / Constants.ballPlayerRatio);
+        if (maxBallCount == 0) maxBallCount = 1;
+        maxHunterCount = maxBallCount;
     }
 
     void CreateCarriers()
     {
         // TODO part of the extract configs, ensure scale is consistent
         float amplitude = transform.localScale.z * (5f * 0.8f);
-        float radian_ratio = (2 * Mathf.PI) / numPlayers;
+        float radian_ratio = (2 * Mathf.PI) / Constants.numPlayers;
 
-        for (int i = 0; i < numPlayers; i++)
+        for (int i = 0; i < Constants.numPlayers; i++)
         {
-            Transform prefab = isHumanPlayers[i] ? playerPrefab : opponentPrefab;
+            Transform prefab = Constants.isHumanPlayers[i] ? playerPrefab : opponentPrefab;
             Transform t = Instantiate(prefab, carrierOffsetY, Quaternion.identity);
-            t.name = playerNames[i];
+            t.name = Constants.playerNames[i];
             // TODO Make use of // Color c = playerColors[i];
             float r = radian_ratio * i;
             Vector3 v = new Vector3(Mathf.Cos(r), 0f, Mathf.Sin(r));
             t.position += v * amplitude;
             t.LookAt(carrierOffsetY);
             BallCarrier bc = t.GetComponent<BallCarrier>();
-            bc.currentLives = MAX_NUM_LIVES;
+            bc.currentLives = Constants.MAX_NUM_LIVES;
             // TODO Lives change event listener? Calls code to handle respawn broadcast etc,
 
             carriers.Add(bc);
