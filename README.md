@@ -14,7 +14,7 @@ Thanks for playing my first Ludum Dare game! I look forward to hearing your feed
 
 - Common enemy is the **`purple capsules`**--they chase down those who have a ball
 
-- As you hold a ball longer the **purple** capsule will **`chase`** you faster
+- As you hold a ball longer the purple capsule will **`chase you faster`**
 
 - **`Throw the ball`** to your opponents to try and kill them
 
