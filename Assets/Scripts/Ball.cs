@@ -15,6 +15,16 @@ public class Ball : MonoBehaviour {
         get { return owner; }
         private set {
             owner = value;
+            if(value != null)
+            {
+                owner.ball = this; // make sure this isnt happening multiple times in code base
+            }
+            else
+            {
+                // if you were assigned NULL owner/carrier
+                Debug.Log("Removed ball owner, adding to ball free list");
+                GameLoop.ballsFree.Add(this);
+            }
             if(refreshEvent != null) refreshEvent();
         }
     }
@@ -97,5 +107,10 @@ public class Ball : MonoBehaviour {
     public void UnregisterToRefresh(RefreshEvent e)
     {
         refreshEvent -= e;
+    }
+
+    public void Capture(BallHunter bh)
+    {
+        Owner = null;
     }
 }

@@ -294,14 +294,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a35bae9e6377c064bac24f4d67da2334, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerPrefab: {fileID: 4282728545892520, guid: e9162c7f43416574d9d868840b6e9739,
-    type: 2}
-  opponentPrefab: {fileID: 4282728545892520, guid: 5be5695fa7644be498a3552ef78abb0f,
-    type: 2}
-  hunterPrefab: {fileID: 4887510619252348, guid: 1cf84232968ba92498409c87cc91f611,
-    type: 2}
-  ballPrefab: {fileID: 4618337903744728, guid: eb9746376b042f346ab58757f5860954, type: 2}
-  numPlayers: 16
 --- !u!4 &309677144
 Transform:
   m_ObjectHideFlags: 0
@@ -398,7 +390,7 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 629656636}
   m_LocalRotation: {x: 0.7071068, y: 0, z: 0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 10, z: 0}
+  m_LocalPosition: {x: 0, y: 20, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 308403229}

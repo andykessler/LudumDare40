@@ -41,7 +41,13 @@ public class BallHunter : MonoBehaviour {
                     target = value.Owner.transform;
                 else
                     target = value.transform;
-                targetRb = target.GetComponent<Rigidbody>(); 
+                //targetRb = target.GetComponent<Rigidbody>(); 
+            }
+            else
+            {
+                // if you were assigned NULL precious
+                Debug.Log("Removed precious reference, adding to hunter free list");
+                GameLoop.huntersFree.Add(this); // remove public visibility on this list later
             }
         }
     }
@@ -61,7 +67,7 @@ public class BallHunter : MonoBehaviour {
     //public const float MAX_DAMPEN_TIME = 15f;
 
     private Transform target; // owner of ball
-    private Rigidbody targetRb;
+    //private Rigidbody targetRb; // was used for prediction pathing
     private Rigidbody rb;
 
     void Start()
@@ -139,17 +145,20 @@ public class BallHunter : MonoBehaviour {
 
     void FindPrecious()
     {
-        GameObject[] balls = GameObject.FindGameObjectsWithTag("Ball");
-        if(balls.Length > 0)
+        //GameObject[] balls = GameObject.FindGameObjectsWithTag("Ball"); 
+        // reference ballsFree of GameLoop
+        Ball[] balls = GameLoop.ballsFree.ToArray();
+        if (balls.Length > 0)
         {
-            // TODO take first one for now, later get specific?
             Debug.Log("Found a precious!");
-            Precious = balls[0].GetComponent<Ball>();
+            // FIXME take first one for now, later get based on func/rand?
+            Precious = balls[0]; /*.GetComponent<Ball>();*/
             HasTakenPrecious = false;
         }
         else
         {
             Debug.Log("Could not find any precious!");
+            Precious = null; // what if you currently already have a Precious? Continue chasing that one?
         }
     }
 
@@ -194,24 +203,54 @@ public class BallHunter : MonoBehaviour {
 
     void OwnerChanged() // this could change signature to accept Owner param
     {
-        Debug.Log("My precious has changed owners");
-        target = Precious.Owner.transform;
-        targetRb = target.GetComponent<Rigidbody>();
+        Debug.Log("My precious has changed owners or has been claimed.");
+        BallCarrier bc = Precious.Owner;
+        if(bc != null)
+        {
+            target = bc.transform;
+            //targetRb = target.GetComponent<Rigidbody>();
+        }
+        else
+        {
+            StopChasePrecious();
+            Precious = null; // will null target
+        }
     }
 
     void StealPrecious()
     {
         if(!HasTakenPrecious)
         {
+            // instead inform gameloop we captured something?
+            // or inform the ball we captured it? or just leave it here?
+
+            // we captured the ball somehow
+            // add the ball to free list. changes it owner to none
+            // make sure player doesnt have reference to ball anymore
+            // add all hunters who were chasing this ball to free list, 
+            // ...stopping chase, setting precious to null, and wait for instruction
+
             Debug.Log("Stealing my precious!");
-            StopChasePrecious();
+            //StopChasePrecious(); // event handlers got this (on owner changed to null)
+            Precious.Capture(this);
             Precious.Owner.SendMessage("Kill");
+
+            // ensure that player lives remaining decreases by 1
+            // call update balls/hunters count
+            // respawn code, shortly after also gives new balls and sends new hunters (delay between each event)
+
+            // WE ARE TREATING RESPAWN AS THE CLAIM EVENT ALMOST
+
             //Precious = null; // this messed stuff up kinda
             // caused the creation of hastakenprecious bool
+            // used for proper ontriggerexit event handling -- needed, prolly not?
+
             HasTakenPrecious = true;
-            rb.AddForce(-rb.velocity, ForceMode.VelocityChange);
+
+
+            // what about instead assigning to Vector3.zero;
+            rb.AddForce(-rb.velocity, ForceMode.VelocityChange); // instantly stop our velocity
             // TODO Negate any rotational forces?
-            
         }
         else
         {
@@ -224,6 +263,7 @@ public class BallHunter : MonoBehaviour {
     public float overlapPercentThreshold; // at least 42% overlap between colliders
     //public float straightAngleThreshold; // dot product check (0-1) unless you want to look behind?
     //public float momentumThreshold; // max momentum to kill IF you entered collision backwards
+
     [Space(10)]
     public bool ownerCollided;
     //public bool straightEnter;

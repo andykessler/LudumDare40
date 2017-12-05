@@ -1,14 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 //using static Constants;
 
 public class GameLoop : MonoBehaviour {
 
-    private Transform playerPrefab;
-    private Transform opponentPrefab;
-    private Transform hunterPrefab;
-    private Transform ballPrefab;
+    private static Transform playerPrefab;
+    private static Transform opponentPrefab;
+    private static Transform hunterPrefab;
+    private static Transform ballPrefab;
 
     // TODO Validate through bitwise XOR on isHumanPlayer, should only be 1
     public static bool[] isHumanPlayers = { true, false, false, false, false, false };
@@ -17,21 +18,20 @@ public class GameLoop : MonoBehaviour {
 
     // TODO Use numLivesLeft/NumPlayersLeft to create key for # of new balls/hounds to spawn
     public static int numPlayers = 2;
-    public static int MAX_NUM_LIVES = 3; // give everyone this many lives lives
-
-    // TODO Create event listeners for +/- for each list (mainly free lists)
+    public static int MAX_NUM_LIVES = 3; // give everyone this many lives
 
     public delegate void ListChangedEvent();
-    public static List<BallCarrier> carriers, carriersFree; // carriersDead?
+    public static List<BallCarrier> carriers, carriersFree, carriersDead;
     public static List<Ball> balls, ballsFree; // ballsDead?
     public static List<BallHunter> hunters, huntersFree; // huntersDead?
-    event ListChangedEvent addFreeCarrierEvent, removeFreeCarrierEvent;
-    event ListChangedEvent addFreeBallEvent, removeFreeBallEvent;
-    event ListChangedEvent addFreeHunterEvent, removeFreeHunterEvent;
+    static event ListChangedEvent addFreeCarrierEvent, removeFreeCarrierEvent;
+    static event ListChangedEvent addFreeBallEvent, removeFreeBallEvent;
+    static event ListChangedEvent addFreeHunterEvent, removeFreeHunterEvent;
 
     // TODO Could probably parameter a single regsitration function instead of this...lol
     // map from string "name" to List<>, have function add/RemoveAt(i) on value
     // YES DO IT : https://stackoverflow.com/questions/1299920/how-to-handle-add-to-list-event
+    // Change to ObservableList<Object>
     public void RegisterToAddFreeCarrierEvent(ListChangedEvent e){addFreeCarrierEvent -= e; addFreeCarrierEvent += e;}
     public void UnregisterToAddFreeCarrierEvent(ListChangedEvent e){addFreeCarrierEvent -= e;}
     public void RegisterToRemoveFreeCarrierEvent(ListChangedEvent e){removeFreeCarrierEvent -= e; removeFreeCarrierEvent += e;}
@@ -48,13 +48,13 @@ public class GameLoop : MonoBehaviour {
     public void UnregisterToRemoveFreeHunterEvent(ListChangedEvent e) { removeFreeHunterEvent -= e; }
 
     // TODO Part of extract configs file; Make sure localScale.y is consistent with world.
-    private Vector3 carrierOffsetY;
+    private static Vector3 carrierOffsetY;
 
-    private int numPlayersLeft;
-    private int numLivesLeft;
+    private static int numPlayersLeft;
+    private static int numLivesLeft;
 
-    private int maxBallCount;
-    private int maxHunterCount;
+    private static int maxBallCount;
+    private static int maxHunterCount;
 
     // TODO CRITICAL
     // need to know when balls are claimed (e.g player died)
@@ -76,7 +76,7 @@ public class GameLoop : MonoBehaviour {
         numPlayersLeft = numPlayers;
         numLivesLeft = numPlayers * MAX_NUM_LIVES;
         CreateCarriers(); // creates and places carriers evenly along unit circle
-        UpdateBallHoundCount(); // checks map if we are should send in different counts
+        UpdateMaxBallHoundCount(); // checks map if we are should send in different counts
         CreateBallPool(); // get maximum number of balls spawned & ready to display
         CreateHunterPool(); // get maximum number of balls spawned & ready to display
     }
@@ -85,12 +85,12 @@ public class GameLoop : MonoBehaviour {
     {
         if(Input.GetKeyUp(KeyCode.Space))
         {
-            GiveNewBalls();
-            SendNewHunters();
+            GiveFreeBalls();
+            SendFreeHunters();
         }
     }
     
-    void GiveNewBalls()
+    static void GiveFreeBalls()
     {
         for(int i = ballsFree.Count - 1; i >= 0; i--)
         {
@@ -103,12 +103,12 @@ public class GameLoop : MonoBehaviour {
             if (b.Owner != null)
             {
                 ballsFree.RemoveAt(i);
-                removeFreeBallEvent();
+                //removeFreeBallEvent();
             }
         }
     }
 
-    void SendNewHunters()
+    static void SendFreeHunters()
     {
         for (int i = huntersFree.Count - 1; i >= 0; i--)
         {
@@ -125,16 +125,16 @@ public class GameLoop : MonoBehaviour {
         }
     }
 
-    BallCarrier GetFreeBallCarrier()
+    static BallCarrier GetFreeBallCarrier()
     {
         // TODO Can change to random index or based on scores
         BallCarrier bc = carriersFree[0];
         carriersFree.Remove(bc);
-        removeFreeCarrierEvent();
+        //removeFreeCarrierEvent();
         return bc;
     }
 
-    void UpdateBallHoundCount()
+    static void UpdateMaxBallHoundCount()
     {
         maxBallCount = 1;
         maxHunterCount = 1;
@@ -148,6 +148,7 @@ public class GameLoop : MonoBehaviour {
 
         carriers = new List<BallCarrier>();
         carriersFree = new List<BallCarrier>();
+        carriersDead = new List<BallCarrier>();
         for (int i = 0; i < numPlayers; i++)
         {
             Transform prefab = isHumanPlayers[i] ? playerPrefab : opponentPrefab;
@@ -159,15 +160,18 @@ public class GameLoop : MonoBehaviour {
             t.position += v * amplitude;
             t.LookAt(carrierOffsetY);
             BallCarrier bc = t.GetComponent<BallCarrier>();
+            bc.currentLives = MAX_NUM_LIVES;
+            // TODO Lives change event listener? Calls code to handle respawn broadcast etc,
+
             carriers.Add(bc);
             carriersFree.Add(bc);
-            addFreeCarrierEvent();
+            //addFreeCarrierEvent();
         }
     }
 
     // Create any extra balls we can make now, but do not assign ownership yet
     // Hides the ball from display until needed
-    void CreateBallPool()
+    static void CreateBallPool()
     {
         balls = new List<Ball>();
         ballsFree = new List<Ball>();
@@ -180,14 +184,14 @@ public class GameLoop : MonoBehaviour {
                 Ball b = t.GetComponent<Ball>();
                 balls.Add(b);
                 ballsFree.Add(b); // TODO Hide until needed, use add/remove listener to toggle display
-                addFreeBallEvent();
+                //addFreeBallEvent();
             }
         }
     }
 
     // Create any extra hunters we can make now, but do not assign ownership yet
     // TODO Hides the hunter from display until needed
-    void CreateHunterPool()
+    static void CreateHunterPool()
     {
         hunters = new List<BallHunter>();
         huntersFree = new List<BallHunter>();
@@ -199,8 +203,61 @@ public class GameLoop : MonoBehaviour {
                 BallHunter bh = t.GetComponent<BallHunter>();
                 hunters.Add(bh);
                 huntersFree.Add(bh); // TODO Hide until needed, use add/remove listener to toggle display
-                addFreeHunterEvent();
+                //addFreeHunterEvent();
             }
         }
     }
+ 
+    public static void KillAndRespawnIfHaveLife(BallCarrier dead)
+    {
+        dead.currentLives -= 1;
+        numLivesLeft -= 1;
+        if (dead.currentLives == 0) {
+            // cant respawn
+            numPlayersLeft -= 1;
+            // permantely hidden, if player show game over!!
+            return;
+        }
+
+        // fix so we dont pass dead twice         // dead guy shouldnt be giving balls! some portal object maybe?
+
+        // Respawn after 5 seconds if can
+        dead.StartCoroutine(WaitAndRespawn(dead, 5f));
+        // seperate from giving and chasing
+        dead.StartCoroutine(WaitGiveChaseBalls(7.5f));
+    }
+
+    private static IEnumerator WaitAndRespawn(BallCarrier dead, float waitTime)
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(waitTime);
+            print("WaitAndRespawn " + Time.time);
+            UpdateMaxBallHoundCount();
+            CreateBallPool();
+            CreateHunterPool();
+            dead.Respawn();
+        }
+    }
+
+    private static IEnumerator WaitGiveChaseBalls(float waitTime)
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(waitTime);
+            print("WaitAndGiveChaseBalls " + Time.time);
+            GiveFreeBalls();
+            SendFreeHunters();
+        }
+    }
+
+    //private IEnumerator WaitAndChase(float waitTime)
+    //{
+    //    while (true)
+    //    {
+    //        yield return new WaitForSeconds(waitTime);
+    //        print("WaitAndChase " + Time.time);
+
+    //    }
+    //}
 }
