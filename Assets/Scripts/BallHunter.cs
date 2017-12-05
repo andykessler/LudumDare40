@@ -18,7 +18,7 @@ public class BallHunter : MonoBehaviour {
     public float MAX_ACCELERATION;
     public float MAX_ACCEL_DISTANCE; // TODO Try bringing this effect back
     [Space(10)]
-    public float DEFAULT_FORWARD_SPEED;
+    public float DEFAULT_FORWARD_SPEED; // currently Vector3.zero
     public float MAX_FORWARD_SPEED;
     [Space(15)]
 
@@ -279,7 +279,7 @@ public class BallHunter : MonoBehaviour {
 
     void OnTriggerStay(Collider other)
     {
-        if (!ownerCollided || Precious == null || HasTakenPrecious) return;
+        if (!ownerCollided || Precious == null || Precious.Owner == null || HasTakenPrecious) return;
         // Check collision was deep (i.e. a high percentage of collider overlap)
         // Check that you went in towards carrier not backing up into it
         // Check momentum values if didn't enter collision at straight angle
