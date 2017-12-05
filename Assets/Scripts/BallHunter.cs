@@ -74,7 +74,9 @@ public class BallHunter : MonoBehaviour {
     {
         rb = GetComponent<Rigidbody>();
         //forwardSpeed = DEFAULT_FORWARD_SPEED;
+        rb.velocity = Vector3.zero; // or give initial speed?
         acceleration = DEFAULT_ACCELERATION;
+        dampening = DEFAULT_DAMPENING;
     }
     
     [Space(5)]
@@ -191,6 +193,8 @@ public class BallHunter : MonoBehaviour {
             Debug.Log("No precious to stop chasing!");
         }
         isChasing = false;
+        dampening = DEFAULT_DAMPENING;
+        acceleration = DEFAULT_ACCELERATION;
         rb.velocity = Vector3.zero;
     }
 
@@ -217,6 +221,7 @@ public class BallHunter : MonoBehaviour {
         {
             StopChasePrecious();
             Precious = null; // will null target
+            
         }
     }
 
@@ -249,6 +254,7 @@ public class BallHunter : MonoBehaviour {
             // used for proper ontriggerexit event handling -- needed, prolly not?
 
             HasTakenPrecious = true;
+            Precious = null;
 
 
             // what about instead assigning to Vector3.zero;
@@ -276,6 +282,7 @@ public class BallHunter : MonoBehaviour {
 
     void OnTriggerEnter(Collider other)
     {
+        //if (other.tag == "Wall") rb.velocity = -rb.velocity * 0.3f; // lose some speed
         if (ownerCollided || Precious == null) return;
         // other.SendMessage("Kill"); // lets see if this is valid
         BallCarrier carrier = other.transform.GetComponent<BallCarrier>();
@@ -286,6 +293,8 @@ public class BallHunter : MonoBehaviour {
         //    Debug.Log(Quaternion.Angle(transform.rotation, Quaternion.LookRotation(Precious.Owner.transform.position)));
         //    straightEnter = Quaternion.Angle(transform.rotation, Quaternion.LookRotation(Precious.Owner.transform.position)) < straightAngleThreshold;
         //}
+
+        
     }
 
     void OnTriggerStay(Collider other)

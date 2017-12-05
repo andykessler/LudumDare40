@@ -40,9 +40,9 @@ public class BallCarrier : MonoBehaviour {
 
     void ReceiveBall(Ball b)
     {
-        if (HasBall())
+        if (HasBall()) // redundant because only this is called by trigger, and you already have been assigned
         {
-            Debug.Log("Can't receive the ball. Already have a ball!");
+            // Debug.Log("Can't receive the ball. Already have a ball!");
             return;
         }
         // is something else blocking you from getting a ball? other rules? distance?
