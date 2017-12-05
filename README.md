@@ -4,17 +4,21 @@ https://akessler.itch.io/ld40
 
 Thanks for playing my first Ludum Dare game! I look forward to hearing your feedback.
 
+*Full screen recommended*
+
 # About
 
-- You are the yellow capsule! You can carry a ball.
+- You are the **yellow** capsule--you can carry a ball
 
-- Opponents are the teal capsules! They can carry balls too.
+- Opponents are the **teal** capsules--they can carry balls too
 
-- Common enemy is the purple capsules! Will chase down those who have a ball.
+- Common enemy is the **purple** capsules--they chase down those who have a ball
 
-- As you hold the ball longer the purple capsule will chase you faster, so you must throw ball to your opponents.
+- As you hold the ball longer the **purple capsule will chase you faster**
 
-- Everyone has 3 lives. 
+- **Throw the ball** to your opponents to try and kill them
+
+- Everyone has 3 lives
 
 - Last capsule standing wins!
 
@@ -22,13 +26,11 @@ Thanks for playing my first Ludum Dare game! I look forward to hearing your feed
 
 - Press 'Space' bar to start the game.
 
-- Control your characters movement by holding down or clicking right mouse button .
+- Control your characters movement by holding down or clicking **right mouse button**.
 
-- Throw the ball by clicking right mouse button on opponent.
+- Throw the ball by clicking **left mouse button** on opponent.
 
 - To start over, restart the game :(
-
-- Full screen recommended.
 
 # Issues / Suggestions
 
