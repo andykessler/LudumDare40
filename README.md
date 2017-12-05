@@ -8,15 +8,15 @@ Thanks for playing my first Ludum Dare game! I look forward to hearing your feed
 
 # About
 
-- You are the **yellow** capsule--you can carry a ball
+- You are the **`yellow capsule`**--you can carry a ball
 
-- Opponents are the **teal** capsules--they can carry balls too
+- Opponents are the **`teal capsules`**--they can carry balls too
 
-- Common enemy is the **purple** capsules--they chase down those who have a ball
+- Common enemy is the **`purple capsules`**--they chase down those who have a ball
 
-- As you hold the ball longer the **purple capsule will chase you faster**
+- As you hold a ball longer the **purple** capsule will **`chase`** you faster
 
-- **Throw the ball** to your opponents to try and kill them
+- **`Throw the ball`** to your opponents to try and kill them
 
 - Everyone has 3 lives
 
@@ -24,11 +24,11 @@ Thanks for playing my first Ludum Dare game! I look forward to hearing your feed
 
 # Controls
 
-- Press 'Space' bar to start the game.
+- Press **`Space`** bar to start the game.
 
-- Control your characters movement by holding down or clicking **right mouse button**.
+- Control your characters movement by holding down or clicking **`right mouse button`**.
 
-- Throw the ball by clicking **left mouse button** on opponent.
+- Throw the ball by clicking **`left mouse button`** on opponent.
 
 - To start over, restart the game :(
 
