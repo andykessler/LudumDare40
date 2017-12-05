@@ -42,11 +42,11 @@ Sometimes the purple capsules go on high velocity off the map, but don't worry t
 
 Towards the end of Ludum Dare 40, when submission deadlines started to approach, I started to lose quality in my overall game design and binding flow. I started noticing myself put in more hacks that I'll "resolve later"--sounds like a typical hackathon to me. Because of this there are a few places in my code that I want to revisit to remove coupling and non-optimal design patterns.
 
-# Configuration Changes
+## Configuration Changes
 
 I will soon be releasing a patch for any bugs discovered while testing, as well as a configurable settings for the game so you can run with different amounts of players, balls, chasers, and their various speeds. There are various tunings you can do to units to creates interesting behaviors that will be fun to experiment with! I will publish that after I get some much needed sleep.
 
-# Future
+## Future
 
 Following this update will come some of the more "nice-to-have" features that we thought of but never got time to implement. One of these includes a healthy dose of refactoring in order to prepare for network behavior scripts. The full list of these future features are listed on the project's Trello board. 
 
