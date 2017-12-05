@@ -57,10 +57,6 @@ public class GameLoop : MonoBehaviour {
     private static int maxBallCount;
     private static int maxHunterCount;
 
-    // TODO CRITICAL
-    // need to know when balls are claimed (e.g player died)
-    // this event will cause loop to respond
-
     // Should be called only once
     void Awake()
     {
@@ -114,15 +110,18 @@ public class GameLoop : MonoBehaviour {
             Ball b = ballsFree[i];
             BallCarrier bc = GetFreeBallCarrier();
             // FIXME Null pointer exception if no free carrier
-            b.transform.position = bc.transform.position; // undo the hiding!
-            
-            b.SendMessage("ThrowTo", bc); 
-            if (b.Owner != null)
+            if(bc != null)
             {
-                // we dont want to say that the ball cant be hunted
-                //ballsFree.RemoveAt(i);
-                //removeFreeBallEvent();
+                //b.transform.position = bc.transform.position; // undo the hiding!
+                b.SendMessage("ThrowTo", bc);
+                if (b.Owner != null)
+                {
+                    // we dont want to say that the ball cant be hunted
+                    //ballsFree.RemoveAt(i);
+                    //removeFreeBallEvent();
+                }
             }
+          
         }
     }
 
@@ -143,7 +142,7 @@ public class GameLoop : MonoBehaviour {
         }
     }
 
-    static BallCarrier GetFreeBallCarrier()
+    public static BallCarrier GetFreeBallCarrier()
     {
         // TODO Can change to random index or based on scores
         BallCarrier bc = carriersFree[0];
@@ -229,8 +228,12 @@ public class GameLoop : MonoBehaviour {
             // cant respawn
             Debug.Log("Player Defeated!");
             numPlayersLeft -= 1;
+
+            // KILL IT WITH FIRE!!!
             carriersFree.Remove(dead); // not sure if its actually in there right now
+            carriers.Remove(dead); // what is conseq of this?
             Destroy(dead.gameObject);
+            Destroy(dead);
             // permantely hidden, if player show game over!!
             return;
         }
