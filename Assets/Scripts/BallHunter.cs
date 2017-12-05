@@ -77,6 +77,7 @@ public class BallHunter : MonoBehaviour {
         rb.velocity = Vector3.zero; // or give initial speed?
         acceleration = DEFAULT_ACCELERATION;
         dampening = DEFAULT_DAMPENING;
+        
     }
     
     [Space(5)]
