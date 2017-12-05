@@ -30,8 +30,14 @@ public class PlayerController : MonoBehaviour {
     // Use this for initialization
     void Start () {
         rb = GetComponent<Rigidbody>();
+        rb.velocity = Vector3.zero;
+        target = Vector3.zero;
+        dir = Vector3.zero;
         self = GetComponent<BallCarrier>();
-	}
+        isMoving = false;
+        isRotating = false;
+
+    }
 
     private void FixedUpdate()
     {
