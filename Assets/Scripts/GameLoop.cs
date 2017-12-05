@@ -17,12 +17,13 @@ public class GameLoop : MonoBehaviour {
     public static Color[] playerColors = { Color.red, Color.blue, Color.green, Color.yellow, Color.magenta, Color.white };
 
     // TODO Use numLivesLeft/NumPlayersLeft to create key for # of new balls/hounds to spawn
-    public static int numPlayers = 2;
+    public static int numPlayers = 4;
     public static int MAX_NUM_LIVES = 3; // give everyone this many lives
 
+    
     public delegate void ListChangedEvent();
     public static List<BallCarrier> carriers, carriersFree, carriersDead;
-    public static List<Ball> balls, ballsFree; // ballsDead?
+    public static List<Ball> balls, ballsFree; // FIXME ballsFree represents two things, split it out
     public static List<BallHunter> hunters, huntersFree; // huntersDead?
     static event ListChangedEvent addFreeCarrierEvent, removeFreeCarrierEvent;
     static event ListChangedEvent addFreeBallEvent, removeFreeBallEvent;
@@ -68,6 +69,16 @@ public class GameLoop : MonoBehaviour {
         hunterPrefab = Constants.hunterPrefab;
         ballPrefab = Constants.ballPrefab;
 
+        carriers = new List<BallCarrier>();
+        carriersFree = new List<BallCarrier>();
+        carriersDead = new List<BallCarrier>();
+
+        balls = new List<Ball>();
+        ballsFree = new List<Ball>();
+
+        hunters = new List<BallHunter>();
+        huntersFree = new List<BallHunter>();
+
         carrierOffsetY = Vector3.up * playerPrefab.transform.localScale.y;
     }
 
@@ -94,15 +105,22 @@ public class GameLoop : MonoBehaviour {
     {
         for(int i = ballsFree.Count - 1; i >= 0; i--)
         {
+            if(ballsFree[i].Owner != null)
+            {
+                // do anything here?
+                return;
+            }
+
             Ball b = ballsFree[i];
             BallCarrier bc = GetFreeBallCarrier();
             // FIXME Null pointer exception if no free carrier
             b.transform.position = bc.transform.position; // undo the hiding!
-
+            
             b.SendMessage("ThrowTo", bc); 
             if (b.Owner != null)
             {
-                ballsFree.RemoveAt(i);
+                // we dont want to say that the ball cant be hunted
+                //ballsFree.RemoveAt(i);
                 //removeFreeBallEvent();
             }
         }
@@ -120,7 +138,7 @@ public class GameLoop : MonoBehaviour {
             if (bh.Precious != null)
             {
                 huntersFree.RemoveAt(i);
-                removeFreeHunterEvent();
+                //removeFreeHunterEvent();
             }
         }
     }
@@ -146,9 +164,7 @@ public class GameLoop : MonoBehaviour {
         float amplitude = transform.localScale.z * (5f * 0.8f);
         float radian_ratio = (2 * Mathf.PI) / numPlayers;
 
-        carriers = new List<BallCarrier>();
-        carriersFree = new List<BallCarrier>();
-        carriersDead = new List<BallCarrier>();
+
         for (int i = 0; i < numPlayers; i++)
         {
             Transform prefab = isHumanPlayers[i] ? playerPrefab : opponentPrefab;
@@ -173,8 +189,7 @@ public class GameLoop : MonoBehaviour {
     // Hides the ball from display until needed
     static void CreateBallPool()
     {
-        balls = new List<Ball>();
-        ballsFree = new List<Ball>();
+
         if (balls.Count < maxBallCount)
         {
             for (int i = balls.Count; i < maxBallCount; i++)
@@ -193,8 +208,6 @@ public class GameLoop : MonoBehaviour {
     // TODO Hides the hunter from display until needed
     static void CreateHunterPool()
     {
-        hunters = new List<BallHunter>();
-        huntersFree = new List<BallHunter>();
         if (hunters.Count < maxHunterCount)
         {
             for (int i = hunters.Count; i < maxHunterCount; i++)
@@ -214,12 +227,16 @@ public class GameLoop : MonoBehaviour {
         numLivesLeft -= 1;
         if (dead.currentLives == 0) {
             // cant respawn
+            Debug.Log("Player Defeated!");
             numPlayersLeft -= 1;
+            carriersFree.Remove(dead); // not sure if its actually in there right now
+            Destroy(dead.gameObject);
             // permantely hidden, if player show game over!!
             return;
         }
 
-        // fix so we dont pass dead twice         // dead guy shouldnt be giving balls! some portal object maybe?
+        // dead guy shouldnt be doing things! some portal object maybe?
+        // fix so we dont pass dead twice  
 
         // Respawn after 5 seconds if can
         dead.StartCoroutine(WaitAndRespawn(dead, 5f));
@@ -251,13 +268,4 @@ public class GameLoop : MonoBehaviour {
         }
     }
 
-    //private IEnumerator WaitAndChase(float waitTime)
-    //{
-    //    while (true)
-    //    {
-    //        yield return new WaitForSeconds(waitTime);
-    //        print("WaitAndChase " + Time.time);
-
-    //    }
-    //}
 }

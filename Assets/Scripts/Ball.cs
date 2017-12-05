@@ -111,6 +111,11 @@ public class Ball : MonoBehaviour {
 
     public void Capture(BallHunter bh)
     {
+        if(Owner != null)
+        {
+            GameLoop.carriersFree.Add(Owner);
+            Owner.ball = null;
+        }
         Owner = null;
     }
 }

@@ -164,7 +164,8 @@ public class BallHunter : MonoBehaviour {
 
     void ChasePrecious()
     {
-        if(Precious != null)
+        HasTakenPrecious = false;
+        if (Precious != null)
         {
             Debug.Log("Chasing my precious!");
             isChasing = true;
@@ -173,6 +174,8 @@ public class BallHunter : MonoBehaviour {
         {
             Debug.Log("No precious to chase!");
             isChasing = false; // does this make sense to be here?
+            dampening = DEFAULT_DAMPENING;
+            acceleration = DEFAULT_ACCELERATION;
             rb.velocity = Vector3.zero;
         }
     }
@@ -232,8 +235,8 @@ public class BallHunter : MonoBehaviour {
 
             Debug.Log("Stealing my precious!");
             //StopChasePrecious(); // event handlers got this (on owner changed to null)
-            Precious.Capture(this);
             Precious.Owner.SendMessage("Kill");
+            Precious.Capture(this);
 
             // ensure that player lives remaining decreases by 1
             // call update balls/hunters count
