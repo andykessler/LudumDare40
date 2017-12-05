@@ -10,11 +10,6 @@ public class OpponentController : MonoBehaviour {
     public float rotationSpeed;
     public float arrivalDistanceMovement;
     public float arrivalDistanceRotation;
-
-    Vector3 dir;
-    Vector3 target;
-    Rigidbody rb;
-    BallCarrier self;
     
     // use this to do circles and make more intelligent paths
     public const float DEFAULT_CIRCLE_RADIUS = 25f;
@@ -23,11 +18,19 @@ public class OpponentController : MonoBehaviour {
     public const float DEFAULT_THROW_TIMER = 3f;
     private float throwBallTimer;
     
+    Vector3 dir;
+    Vector3 target;
+    Rigidbody rb;
+    BallCarrier self;
+
+    float changeDirectionTimer;
+    Quaternion targetRotation;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         self = GetComponent<BallCarrier>();
-        throwBallTimer = DEFAULT_THROW_TIMER;
+        throwBallTimer = Random.Range(DEFAULT_THROW_TIMER * .5f, DEFAULT_THROW_TIMER * 1.5f);
     }
     
     void FixedUpdate()
@@ -53,8 +56,11 @@ public class OpponentController : MonoBehaviour {
             else if(throwBallTimer <= 0)
             {
                 BallCarrier t = GameLoop.GetFreeBallCarrier();
-                self.SendMessage("ThrowBall", t);
-                throwBallTimer = DEFAULT_THROW_TIMER;
+                if(t != null)
+                {
+                    self.SendMessage("ThrowBall", t);
+                    throwBallTimer = DEFAULT_THROW_TIMER;
+                }
             }
         }
     }
@@ -68,36 +74,23 @@ public class OpponentController : MonoBehaviour {
 
     }
 
-    float changeDirectionTimer;
-    Quaternion targetRotation;
-
     void HandleRotation()
     {
+        // TODO Give them preferences towards origin so they don't run into walls
         if(changeDirectionTimer > 0f)
         {
             changeDirectionTimer -= Time.deltaTime;
         }
         else if(changeDirectionTimer <= 0f)
         {
-            Quaternion rotation = Random.rotation;
+            Quaternion rotation = Random.rotation; // put a range on this random val
             Vector3 angles = transform.rotation.eulerAngles;
             angles.y = (angles.y + rotation.eulerAngles.y) % 360;
             targetRotation = Quaternion.Euler(angles);
-            changeDirectionTimer = Random.Range(1, 3f);
+            changeDirectionTimer = Random.Range(0.5f, 2f); // extract to constant
 
         }
         rb.MoveRotation(Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed)); // Time.deltaTime?
-
-        // TODO Add random rotation amount, to simulate moving back/forth + zig-zag
-        //transform.localEulerAngles += new Vector3(0f, rotationSpeed, 0f);
-
-
-        //Quaternion rotation = Quaternion.LookRotation(dir);
-        //rb.MoveRotation(Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * rotationSpeed));
     }
-
-    //bool IsLookingAtTarget()
-    //{
-    //    return Vector3.Dot(dir, transform.forward) >= arrivalDistanceRotation;
-    //}
+ 
 }

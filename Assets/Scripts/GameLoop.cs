@@ -83,7 +83,7 @@ public class GameLoop : MonoBehaviour {
         numPlayersLeft = numPlayers;
         numLivesLeft = numPlayers * MAX_NUM_LIVES;
         CreateCarriers(); // creates and places carriers evenly along unit circle
-        UpdateMaxBallHoundCount(); // checks map if we are should send in different counts
+        UpdateMaxBallHunterCount(); // checks map if we are should send in different counts
         CreateBallPool(); // get maximum number of balls spawned & ready to display
         CreateHunterPool(); // get maximum number of balls spawned & ready to display
     }
@@ -101,6 +101,7 @@ public class GameLoop : MonoBehaviour {
     {
         for(int i = ballsFree.Count - 1; i >= 0; i--)
         {
+            Debug.Log(ballsFree.Count);
             if(ballsFree[i].Owner != null)
             {
                 // do anything here?
@@ -145,16 +146,25 @@ public class GameLoop : MonoBehaviour {
     public static BallCarrier GetFreeBallCarrier()
     {
         // TODO Can change to random index or based on scores
-        BallCarrier bc = carriersFree[0];
-        carriersFree.Remove(bc);
-        //removeFreeCarrierEvent();
-        return bc;
+        if(carriersFree.Count > 0)
+        {
+            BallCarrier bc = carriersFree[0];
+            carriersFree.Remove(bc);
+            //removeFreeCarrierEvent();
+            return bc;
+        }
+        else
+        {
+            Debug.Log("No free carriers!");
+            return null;
+        }
     }
 
-    static void UpdateMaxBallHoundCount()
+    // need to also have a check for total lives left and what to do for count
+    static void UpdateMaxBallHunterCount()
     {
-        maxBallCount = 1;
-        maxHunterCount = 1;
+        maxBallCount = numPlayersLeft / 2;
+        maxHunterCount = maxBallCount;
     }
 
     void CreateCarriers()
@@ -233,7 +243,6 @@ public class GameLoop : MonoBehaviour {
             carriersFree.Remove(dead); // not sure if its actually in there right now
             carriers.Remove(dead); // what is conseq of this?
             Destroy(dead.gameObject);
-            Destroy(dead);
             // permantely hidden, if player show game over!!
             return;
         }
@@ -253,7 +262,7 @@ public class GameLoop : MonoBehaviour {
         {
             yield return new WaitForSeconds(waitTime);
             print("WaitAndRespawn " + Time.time);
-            UpdateMaxBallHoundCount();
+            UpdateMaxBallHunterCount();
             CreateBallPool();
             CreateHunterPool();
             dead.Respawn();

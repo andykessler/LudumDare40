@@ -27,8 +27,6 @@ public class PlayerController : MonoBehaviour {
 
     BallCarrier self;
 
-    private Vector3 fixedUpdateForce;// aka FU force
-
     // Use this for initialization
     void Start () {
         rb = GetComponent<Rigidbody>();
@@ -41,27 +39,27 @@ public class PlayerController : MonoBehaviour {
         {
             rb.velocity = rb.velocity.normalized * MAX_SPEED;
         }
-        rb.AddForce(moveSpeed * dir.normalized, ForceMode.Impulse); // * Time.deltaTime; ?
+        rb.AddForce(moveSpeed * dir.normalized, ForceMode.Impulse);
     }
 
     // Update is called once per frame
     void Update () {
-        handleInput();
+        HandleInput();
 
         if(isMoving || isRotating)
         {
             dir = Vector3.Normalize(target - transform.position);
-            if(!isLookingAtTarget())
+            if(!IsLookingAtTarget())
             {
                 isRotating = true;
             }
         }
-        handleMovement();
-        handleRotation();
+        HandleMovement();
+        HandleRotation();
 
 	}
 
-    void handleInput()
+    void HandleInput()
     {
         if (Input.GetMouseButton(1) || Input.GetMouseButtonUp(1)) // Right click up event
         {
@@ -92,16 +90,10 @@ public class PlayerController : MonoBehaviour {
                 }
             }
         }
-
-        // temp test code to force pass ball
-        if (Input.GetKeyUp(KeyCode.Q) && !self.HasBall())
-        {
-            GameLoop.ballsFree[0].Owner.SendMessage("ThrowBall", self);
-        }
     }
 
     // maybe can check for clicking animation here lol
-    void handleMovement()
+    void HandleMovement()
     {
         if (!isMoving) return;
         if(Vector3.Distance(transform.position, target) < arrivalDistanceMovement)
@@ -110,15 +102,9 @@ public class PlayerController : MonoBehaviour {
             //fixedUpdateForce = Vector3.zero;
 
         }
-        else
-        {
-            //rb.AddForce(transform.position + (transform.forward * moveSpeed * Time.deltaTime));
-            //rb.AddForce(moveSpeed * dir, ForceMode.Impulse); // * Time.deltaTime; ?
-            fixedUpdateForce = moveSpeed * dir.normalized;
-        }
     }
 
-    void handleRotation()
+    void HandleRotation()
     {
         if (!isRotating) return;
         if (Vector3.Dot(dir, transform.forward) >= arrivalDistanceRotation)
@@ -131,7 +117,7 @@ public class PlayerController : MonoBehaviour {
         
     }
 
-    bool isLookingAtTarget()
+    bool IsLookingAtTarget()
     {
         return Vector3.Dot(dir, transform.forward) >= arrivalDistanceRotation;
     }

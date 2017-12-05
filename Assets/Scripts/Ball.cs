@@ -9,11 +9,15 @@ public class Ball : MonoBehaviour {
     public delegate void RefreshEvent();
     event RefreshEvent refreshEvent;
 
-    private BallCarrier owner;
+    public BallCarrier owner;
     public BallCarrier Owner
     {
         get { return owner; }
         private set {
+            if(owner != null)
+            {
+                GameLoop.carriersFree.Add(owner);
+            }
             owner = value;
             if(value != null)
             {
@@ -36,8 +40,7 @@ public class Ball : MonoBehaviour {
     public bool isMoving;
 
     float speed;
-
-
+    
     // Use this for initialization
     void Start () {
         rb = GetComponent<Rigidbody>();
@@ -91,7 +94,7 @@ public class Ball : MonoBehaviour {
     {
         if(isMoving && target != null && other.GetComponent<BallCarrier>() == target)
         {
-            target.SendMessage("ReceiveBall", this);
+            //target.SendMessage("ReceiveBall", this);
             isMoving = false;
             // TODO Does does ball hide on possession? or do you visibly hold it somewhere? or just aura particles
         }
