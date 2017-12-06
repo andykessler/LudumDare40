@@ -13,7 +13,7 @@ public class UnitPropertyManager : MonoBehaviour
     Slider[] valSliders;
 
     // Use this for initialization
-    void Start()
+    void Awake()
     {
         switch(unitName)
         {
