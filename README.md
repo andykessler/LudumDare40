@@ -12,27 +12,29 @@ Thanks for playing my first Ludum Dare game! I look forward to hearing your feed
 
 - Opponents are the **`teal capsules`**--they can carry balls too
 
-- Common enemy is the **`purple capsules`**--they chase down those who have a ball
+- Hunters are the **`purple capsules`**--they chase down and kill those who have a ball
 
 - As you hold a ball longer the purple capsule will **`chase you faster`**
 
-- **`Throw the ball`** to your opponents to try and kill them
+- **`Throw the ball`** to your opponents to try get them killed
 
-- Everyone has 3 lives
+- Everyone has 3 lives by default
 
 - Last capsule standing wins!
 
 # Controls
 
-- Press **`Space`** bar to start the game.
+- **`Space`** bar to reset the game and cancel the active round (if any)
 
-- Control your characters movement by holding down or clicking **`right mouse button`**.
+- **`Space`** again to begin a the round
 
-- Throw the ball by clicking **`left mouse button`** on opponent.
+- **`Right Mouse Button`** hold or click to move player
 
-- To start over, restart the game :(
+- **`Left Mouse Button`** click on opponent to throw the ball
 
-# Issues / Suggestions
+- Control different properties of the game through interactive UI sliders
+
+# Bugs / Issues / Suggestions
 
 Sometimes the purple capsules go on high velocity off the map, but don't worry they always seem to return :P
 
@@ -44,9 +46,8 @@ Towards the end of Ludum Dare 40, when submission deadlines started to approach,
 
 # Configuration Changes
 
-I will soon be releasing a patch for any bugs discovered while testing, as well as a configurable settings for the game so you can run with different amounts of players, balls, chasers, and their various speeds. There are various tunings you can do to units to creates interesting behaviors that will be fun to experiment with! I will publish that after I get some much needed sleep.
+I will soon be releasing a patch for any bugs discovered while testing, as well as a configurable settings for the game so you can run with different amounts of carriers, balls, hunters, and their various speeds. There are various tunings you can do to units to creates interesting behaviors that will be fun to experiment with! I will publish that after I get some much needed sleep.
 
 # Future
 
-Following this update will come some of the more "nice-to-have" features that we thought of but never got time to implement. One of these includes a healthy dose of refactoring in order to prepare for network behavior scripts. The full list of these future features are listed on the project's Trello board. 
-
+Following this update will come some of the more "nice-to-have" features that were thought of but never got time to implement. One of these includes a healthy dose of refactoring in order to prepare for network behavior scripts. The full list of these future features are listed on the project's Trello board. 
