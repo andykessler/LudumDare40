@@ -50,6 +50,7 @@ public class GameLoop : MonoBehaviour {
     private static int maxHunterCount;
 
     public bool gameStarted = false;
+    public bool roundStarted = false;
 
     // Should be called only once
     void Awake()
@@ -60,6 +61,7 @@ public class GameLoop : MonoBehaviour {
         ballPrefab = Constants.ballPrefab;
 
         // TODO we instantiate lists in same way in Restart() can we not duplicate
+        // solution: simple null checks on each list in restart?
         carriers = new List<BallCarrier>();
         carriersFree = new List<BallCarrier>();
         carriersDead = new List<BallCarrier>();
@@ -73,15 +75,17 @@ public class GameLoop : MonoBehaviour {
 
     // Use this for initialization (see if we want to move any up to awake)
     void Start() {
-        Restart();
+        gameStarted = false;
+        roundStarted = false;
     }
 
     void Restart()
     {
-        gameStarted = false;
+        gameStarted = true;
 
         // Destroy all current game objects
         // FIXME What about pooling / saving for later instead?
+        // Consider try catch exception continue
         foreach(BallCarrier bc in carriers) { Destroy(bc.gameObject); }
         foreach(BallCarrier bc in carriers) { Destroy(bc.gameObject); }
         foreach(BallCarrier bc in carriers) { Destroy(bc.gameObject); }
@@ -106,19 +110,25 @@ public class GameLoop : MonoBehaviour {
         UpdateMaxBallHunterCount(); // checks map if we are should send in different counts
         CreateBallPool(); // get maximum number of balls spawned & ready to display
         CreateHunterPool(); // get maximum number of balls spawned & ready to display
+
+        roundStarted = false;
     }
 
     void Update()
     {
         if (Input.GetKeyUp(KeyCode.Space))
         {
-            if (gameStarted) { 
+            if (roundStarted || !gameStarted)
+            {
                 Restart();
                 return;
             }
-            gameStarted = true;
-            GiveFreeBalls();
-            SendFreeHunters();
+            if(!roundStarted)
+            {
+                GiveFreeBalls();
+                SendFreeHunters();
+                roundStarted = true;
+            }
         }
     }
     
@@ -207,18 +217,21 @@ public class GameLoop : MonoBehaviour {
     static void UpdateMaxBallHunterCount()
     {
 
-        maxBallCount = (int)(numPlayersLeft / Constants.ballPlayerRatio);
-        if (maxBallCount == 0) maxBallCount = 1;
-        maxHunterCount = maxBallCount;
+        //maxBallCount = (int)(numPlayersLeft / Constants.ballPlayerRatio);
+        //if (maxBallCount == 0) maxBallCount = 1;
+        //maxHunterCount = maxBallCount;
+
+        maxBallCount = (int)Mathf.Max(GameProperties.balls,1f);
+        maxHunterCount = (int)Mathf.Max(GameProperties.hunters, 1f);
     }
 
     void CreateCarriers()
     {
         // TODO part of the extract configs, ensure scale is consistent
         float amplitude = transform.localScale.z * (5f * 0.8f);
-        float radian_ratio = (2 * Mathf.PI) / Constants.numPlayers;
+        float radian_ratio = (2 * Mathf.PI) / GameProperties.carriers;
 
-        for (int i = 0; i < Constants.numPlayers; i++)
+        for (int i = 0; i < GameProperties.carriers; i++)
         {
             Transform prefab = Constants.isHumanPlayers[i] ? playerPrefab : opponentPrefab;
             Transform t = Instantiate(prefab, carrierOffsetY, Quaternion.identity);
@@ -229,7 +242,7 @@ public class GameLoop : MonoBehaviour {
             t.position += v * amplitude;
             t.LookAt(carrierOffsetY);
             BallCarrier bc = t.GetComponent<BallCarrier>();
-            bc.currentLives = Constants.MAX_NUM_LIVES;
+            bc.currentLives = (int)Mathf.Max(GameProperties.lives, 1f);
             // TODO Lives change event listener? Calls code to handle respawn broadcast etc,
 
             carriers.Add(bc);
@@ -293,8 +306,8 @@ public class GameLoop : MonoBehaviour {
         // dead guy shouldnt be doing things! some portal object maybe?
         // fix so we dont pass dead twice  
 
-        dead.StartCoroutine(WaitAndRespawn(dead, 2f));
-        dead.StartCoroutine(WaitGiveChaseBalls(4f));
+        dead.StartCoroutine(WaitAndRespawn(dead, 2f)); // TODO Extract wait to config constant
+        dead.StartCoroutine(WaitGiveChaseBalls(4f)); // TODO Extract wait to config constant
     }
 
     private static IEnumerator WaitAndRespawn(BallCarrier dead, float waitTime)

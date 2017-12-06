@@ -8,6 +8,9 @@ public class MinMaxSlider : MonoBehaviour {
     public float min;
     public float max;
 
+    public string minName;
+    public string maxName;
+
     public EventTrigger.TriggerEvent customCallback;
 
     private Slider minSlider, maxSlider;
