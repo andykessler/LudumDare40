@@ -47,8 +47,13 @@ public class UnitPropertyManager : MonoBehaviour
 
     }
 
-    public void UpdateProperties(string key, float value)
+    public void UpdateProperty(string key, float value)
     {
         properties.Set(key, value);
+    }
+
+    public float ReadProperty(string key)
+    {
+        return properties.Get(key);
     }
 }

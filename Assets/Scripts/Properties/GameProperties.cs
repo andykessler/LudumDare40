@@ -1,6 +1,4 @@
-﻿using System;
-
-public class GameProperties : UnitProperties
+﻿public class GameProperties : UnitProperties
 {
     public static GameProperties props = new GameProperties();
 
