@@ -3,20 +3,15 @@
 // could inherit base values from parent controller class
 public class OpponentController : MonoBehaviour {
 
-    public const float MAX_SPEED = 50f;
-    public float moveSpeed;
-    public float rotationSpeed;
+    private BallCarrier self;
+    private Rigidbody rb;
+    
+    private Vector3 dir;
+    private Vector3 target;
+    private Quaternion targetRotation;
 
-    public const float DEFAULT_THROW_TIMER = 3f;
     private float throwBallTimer;
     private float changeDirectionTimer;
-
-    Quaternion targetRotation;
-
-    Vector3 dir;
-    Vector3 target;
-    Rigidbody rb;
-    BallCarrier self;
 
     void Start()
     {
@@ -25,16 +20,15 @@ public class OpponentController : MonoBehaviour {
         target = Vector3.zero;
         dir = Vector3.zero;
         self = GetComponent<BallCarrier>();
-        throwBallTimer = Random.Range(DEFAULT_THROW_TIMER * .5f, DEFAULT_THROW_TIMER * 1.5f);
+        throwBallTimer = Random.Range(OpponentProperties.minThrowTimer, OpponentProperties.maxThrowTimer);
     }
     
     void FixedUpdate()
     {
-        if (rb.velocity.magnitude > MAX_SPEED)
+        if (rb.velocity.magnitude > OpponentProperties.maxSpeed)
         {
-            rb.velocity = rb.velocity.normalized * MAX_SPEED;
+            rb.velocity = rb.velocity.normalized * OpponentProperties.maxSpeed;
         }
-
         HandleInput();
         HandleMovement();
         HandleRotation();
@@ -54,7 +48,7 @@ public class OpponentController : MonoBehaviour {
                 if(t != null)
                 {
                     self.SendMessage("ThrowBall", t);
-                    throwBallTimer = DEFAULT_THROW_TIMER;
+                    throwBallTimer = Random.Range(OpponentProperties.minThrowTimer, OpponentProperties.maxThrowTimer);
                 }
             }
         }
@@ -63,7 +57,7 @@ public class OpponentController : MonoBehaviour {
     void HandleMovement()
     {
         dir = transform.forward;
-        rb.AddForce(dir * moveSpeed, ForceMode.Impulse);
+        rb.AddForce(dir * OpponentProperties.speed, ForceMode.Impulse);
     }
 
     void HandleRotation()
@@ -79,10 +73,10 @@ public class OpponentController : MonoBehaviour {
             Vector3 angles = transform.rotation.eulerAngles;
             angles.y = (angles.y + rotation.eulerAngles.y) % 360;
             targetRotation = Quaternion.Euler(angles);
-            changeDirectionTimer = Random.Range(0.25f, 1.5f); // extract to constant
+            changeDirectionTimer = Random.Range(OpponentProperties.minRotateTimer, OpponentProperties.maxRotateTimer);
 
         }
-        rb.MoveRotation(Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed)); // Time.deltaTime
+        rb.MoveRotation(Quaternion.Slerp(transform.rotation, targetRotation, OpponentProperties.rotationSpeed)); // Time.deltaTime
     }
  
 }

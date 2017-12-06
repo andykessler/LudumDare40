@@ -1,26 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class BallHunter : MonoBehaviour {
-    [Header("Path Values - READ ONLY")]
-    public float dampening;
+
     public float acceleration;
-    //public float forwardSpeed;
-    //public float currDampenTime = MAX_DAMPEN_TIME;
-    public float rotationSpeed;
-    [Space(10)]
-    [Header("Path Constants")]
-    public float DEFAULT_DAMPENING;
-    public float MAX_DAMPENING;
-    [Space(10)]
-    public float DEFAULT_ACCELERATION;
-    public float MAX_ACCELERATION;
-    public float MAX_ACCEL_DISTANCE; // TODO Try bringing this effect back
-    [Space(10)]
-    public float DEFAULT_FORWARD_SPEED; // currently Vector3.zero
-    public float MAX_FORWARD_SPEED;
-    [Space(15)]
 
     // my precious!!!
     private Ball precious;
@@ -64,48 +46,43 @@ public class BallHunter : MonoBehaviour {
 
     [SerializeField]
     private bool isChasing;
-    //public const float MAX_DAMPEN_TIME = 15f;
 
     private Transform target; // owner of ball
-    //private Rigidbody targetRb; // was used for prediction pathing
     private Rigidbody rb;
 
     void Start()
     {
         rb = GetComponent<Rigidbody>();
-        //forwardSpeed = DEFAULT_FORWARD_SPEED;
         rb.velocity = Vector3.zero; // or give initial speed?
-        acceleration = DEFAULT_ACCELERATION;
-        dampening = DEFAULT_DAMPENING;
-        
+        acceleration = HunterProperties.acceleration;
     }
     
-    [Space(5)]
-    // this is just editor stuff to check values quickly...
-    public Vector3 vel = Vector3.zero, diffMem = Vector3.zero, mydrag = Vector3.zero, a = Vector3.zero, f = Vector3.zero;
-    //public float distanceRatio;
-    public float radius;
+    //[Space(5)]
+    //// this is just editor stuff to check values quickly...
+    //public Vector3 vel = Vector3.zero, diffMem = Vector3.zero, mydrag = Vector3.zero, a = Vector3.zero, f = Vector3.zero;
+    ////public float distanceRatio;
+    //public float radius;
 
-    void OnDrawGizmosSelected()
-    {
-        Gizmos.color = Color.green;
-        Gizmos.DrawRay(transform.position, vel + vel.normalized*radius);
+    //void OnDrawGizmosSelected()
+    //{
+    //    Gizmos.color = Color.green;
+    //    Gizmos.DrawRay(transform.position, vel + vel.normalized*radius);
 
-        if(target != null)
-        {
-            Gizmos.color = Color.red;
-            Gizmos.DrawLine(transform.position, target.transform.position);
-        }
+    //    if(target != null)
+    //    {
+    //        Gizmos.color = Color.red;
+    //        Gizmos.DrawLine(transform.position, target.transform.position);
+    //    }
 
-        Gizmos.color = Color.magenta;
-        Gizmos.DrawRay(transform.position, a + a.normalized*radius);
+    //    Gizmos.color = Color.magenta;
+    //    Gizmos.DrawRay(transform.position, a + a.normalized*radius);
 
-        Gizmos.color = Color.blue;
-        Gizmos.DrawRay(transform.position, f + f.normalized*radius);
+    //    Gizmos.color = Color.blue;
+    //    Gizmos.DrawRay(transform.position, f + f.normalized*radius);
 
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawRay(transform.position, mydrag + mydrag.normalized*radius);
-    }
+    //    Gizmos.color = Color.yellow;
+    //    Gizmos.DrawRay(transform.position, mydrag + mydrag.normalized*radius);
+    //}
 
     void FixedUpdate()
     {
@@ -116,8 +93,8 @@ public class BallHunter : MonoBehaviour {
 
         //acceleration = DEFAULT_ACCELERATION;// + (dampenRatioComp * (MAX_ACCELERATION - DEFAULT_ACCELERATION));
         //dampening = DEFAULT_DAMPENING + (dampenRatioComp * (MAX_DAMPENING - DEFAULT_DAMPENING));
-        rb.velocity = Vector3.Min(rb.velocity, rb.velocity.normalized * MAX_FORWARD_SPEED);
-        acceleration = Mathf.Min(acceleration + Time.deltaTime, MAX_ACCELERATION);
+        rb.velocity = Vector3.Min(rb.velocity, rb.velocity.normalized * HunterProperties.maxSpeed);
+        acceleration = Mathf.Min(acceleration + Time.deltaTime, HunterProperties.maxAcceleration);
 
         Vector3 diff = target.transform.position - transform.position;
 
@@ -129,21 +106,21 @@ public class BallHunter : MonoBehaviour {
         //distanceRatio = 1f;// (Mathf.Min(diff.magnitude / MAX_ACCEL_DISTANCE, 1f));
         
         //Vector3 drag = -rb.velocity * (rb.mass + dampening); // I think this is equivalent to the above.
-        rb.drag = rb.mass + dampening; // I think this is equivalent to the above.
+        rb.drag = rb.mass + HunterProperties.dampening; // I think this is equivalent to the above.
         Vector3 dv = rb.drag * -rb.velocity;
 
         Vector3 force = diff.normalized * acceleration;// * distanceRatio;
         Quaternion rotation = Quaternion.LookRotation(diff.normalized);
 
         rb.AddForce(force * Time.deltaTime, ForceMode.Impulse); // I might like impulse better :O
-        rb.MoveRotation(Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * rotationSpeed));
+        rb.MoveRotation(Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * HunterProperties.rotationSpeed));
 
-        // delete this soon just for debugging/inspector
-        f = force;
-        a = f + dv;
-        vel = rb.velocity;
-        diffMem = diff;
-        mydrag = a;
+        //// delete this soon just for debugging/inspector
+        //f = force;
+        //a = f + dv;
+        //vel = rb.velocity;
+        //diffMem = diff;
+        //mydrag = a;
     }
 
     void FindPrecious()
@@ -177,9 +154,8 @@ public class BallHunter : MonoBehaviour {
             Debug.Log(GameLoop.ballsFree.Count);
             Debug.Log("No precious to chase!");
             isChasing = false; // does this make sense to be here?
-            dampening = DEFAULT_DAMPENING;
-            acceleration = DEFAULT_ACCELERATION;
             rb.velocity = Vector3.zero;
+            acceleration = HunterProperties.acceleration;
         }
     }
 
@@ -194,9 +170,8 @@ public class BallHunter : MonoBehaviour {
             Debug.Log("No precious to stop chasing!");
         }
         isChasing = false;
-        dampening = DEFAULT_DAMPENING;
-        acceleration = DEFAULT_ACCELERATION;
         rb.velocity = Vector3.zero;
+        acceleration = HunterProperties.acceleration;
     }
 
     void ToggleChasePrecious()

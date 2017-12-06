@@ -22,7 +22,7 @@
     protected OpponentProperties() : base()
     {
         d[KEY_SPEED] = 16f;
-        d[KEY_MAX_SPEED] = 16f;
+        d[KEY_MAX_SPEED] = 50f;
         d[KEY_MASS] = 2f;
         d[KEY_ROTATION_SPEED] = 0.3f;
         d[KEY_THROW_STRENGTH] = 200f;
