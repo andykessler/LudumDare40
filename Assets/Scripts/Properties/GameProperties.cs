@@ -1,4 +1,6 @@
-﻿public class GameProperties : UnitProperties
+﻿using System;
+
+public class GameProperties : UnitProperties
 {
     public static GameProperties props = new GameProperties();
 
@@ -18,5 +20,15 @@
         d[KEY_HUNTERS] = 1f;
         d[KEY_CARRIERS] = 2f;
         d[KEY_LIVES] = 3f;
+
+        Update();
+    }
+
+    protected override void Update()
+    {
+        balls = d[KEY_BALLS];
+        hunters = d[KEY_HUNTERS];
+        carriers = d[KEY_CARRIERS];
+        lives = d[KEY_LIVES];
     }
 }

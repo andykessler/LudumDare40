@@ -1,31 +1,18 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody))]
 public class PlayerController : MonoBehaviour {
-
-    public const float MAX_SPEED = 50f;
-
-    public float moveSpeed;
-
-    public float rotationSpeed;
-
+    
+    // public for debugging purposes, change later
     public float arrivalDistanceMovement;
-
     public float arrivalDistanceRotation;
-
     public bool isMoving = false;
-
     public bool isRotating = false;
 
-    Vector3 dir;
-
-    Vector3 target;
-
-    Rigidbody rb;
-
-    BallCarrier self;
+    private Vector3 dir;
+    private Vector3 target;
+    private Rigidbody rb;
+    private BallCarrier self;
 
     // Use this for initialization
     void Start () {
@@ -36,22 +23,20 @@ public class PlayerController : MonoBehaviour {
         self = GetComponent<BallCarrier>();
         isMoving = false;
         isRotating = false;
-
     }
 
     private void FixedUpdate()
     {
-        if (rb.velocity.magnitude > MAX_SPEED)
+        if (rb.velocity.magnitude > PlayerProperties.maxSpeed)
         {
-            rb.velocity = rb.velocity.normalized * MAX_SPEED;
+            rb.velocity = rb.velocity.normalized * PlayerProperties.maxSpeed;
         }
-        rb.AddForce(moveSpeed * dir.normalized, ForceMode.Impulse);
+        rb.AddForce(PlayerProperties.speed * dir.normalized, ForceMode.Impulse);
     }
 
     // Update is called once per frame
     void Update () {
         HandleInput();
-
         if(isMoving || isRotating)
         {
             dir = Vector3.Normalize(target - transform.position);
@@ -62,7 +47,6 @@ public class PlayerController : MonoBehaviour {
         }
         HandleMovement();
         HandleRotation();
-
 	}
 
     void HandleInput()
@@ -86,7 +70,6 @@ public class PlayerController : MonoBehaviour {
             RaycastHit hit;
             if (Physics.Raycast(inputRay, out hit, LayerMask.GetMask("Opponents")))
             {
-
                 // Use sendmessage to check these things instead?
                 if (hit.rigidbody != null) // check it is also tagged "Opponent"? Redundant? 
                 {
@@ -105,8 +88,6 @@ public class PlayerController : MonoBehaviour {
         if(Vector3.Distance(transform.position, target) < arrivalDistanceMovement)
         {
             isMoving = false;
-            //fixedUpdateForce = Vector3.zero;
-
         }
     }
 
@@ -117,9 +98,8 @@ public class PlayerController : MonoBehaviour {
         {
             isRotating = false;
         }
-
         Quaternion rotation = Quaternion.LookRotation(dir);
-        rb.MoveRotation(Quaternion.Slerp(transform.rotation, rotation, rotationSpeed));
+        rb.MoveRotation(Quaternion.Slerp(transform.rotation, rotation, PlayerProperties.rotationSpeed));
         
     }
 

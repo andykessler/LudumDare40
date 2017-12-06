@@ -18,5 +18,15 @@
         d[KEY_MAX_SPEED] = 200f;
         d[KEY_HEIGHT] = 1f;
         //d[KEY_MAX_HEIGHT] = 5f;
+
+        Update();
+    }
+
+    override protected void Update()
+    {
+        speed = d[KEY_SPEED];
+        maxSpeed = d[KEY_MAX_SPEED];
+        height = d[KEY_HEIGHT];
+        //maxHeight = d[KEY_MAX_HEIGHT];
     }
 }
