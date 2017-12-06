@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+// FIXME Need C# 6+ for this, could reduce verboseness
 //using static Constants;
 
 public class GameLoop : MonoBehaviour {
@@ -48,6 +49,8 @@ public class GameLoop : MonoBehaviour {
     private static int maxBallCount;
     private static int maxHunterCount;
 
+    public bool gameStarted = false;
+
     // Should be called only once
     void Awake()
     {
@@ -56,13 +59,12 @@ public class GameLoop : MonoBehaviour {
         hunterPrefab = Constants.hunterPrefab;
         ballPrefab = Constants.ballPrefab;
 
+        // TODO we instantiate lists in same way in Restart() can we not duplicate
         carriers = new List<BallCarrier>();
         carriersFree = new List<BallCarrier>();
         carriersDead = new List<BallCarrier>();
-
         balls = new List<Ball>();
         ballsFree = new List<Ball>();
-
         hunters = new List<BallHunter>();
         huntersFree = new List<BallHunter>();
 
@@ -71,20 +73,49 @@ public class GameLoop : MonoBehaviour {
 
     // Use this for initialization (see if we want to move any up to awake)
     void Start() {
-        numPlayersLeft = Constants.numPlayers;
-        numLivesLeft = Constants.numPlayers * Constants.MAX_NUM_LIVES;
+        Restart();
+    }
+
+    void Restart()
+    {
+        gameStarted = false;
+
+        // Destroy all current game objects
+        // FIXME What about pooling / saving for later instead?
+        foreach(BallCarrier bc in carriers) { Destroy(bc.gameObject); }
+        foreach(BallCarrier bc in carriers) { Destroy(bc.gameObject); }
+        foreach(BallCarrier bc in carriers) { Destroy(bc.gameObject); }
+        foreach(Ball b in balls) { Destroy(b.gameObject); }
+        foreach(Ball b in ballsFree) { Destroy(b.gameObject); }
+        foreach(BallHunter bh in hunters) { Destroy(bh.gameObject); }
+        foreach(BallHunter bh in huntersFree) { Destroy(bh.gameObject); }
+
+        // Create new lists to put new game objects in
+        carriers = new List<BallCarrier>();
+        carriersFree = new List<BallCarrier>();
+        carriersDead = new List<BallCarrier>();
+        balls = new List<Ball>();
+        ballsFree = new List<Ball>();
+        hunters = new List<BallHunter>();
+        huntersFree = new List<BallHunter>();
+
+        numPlayersLeft = (int)GameProperties.carriers;
+        numLivesLeft = (int)GameProperties.carriers * (int)GameProperties.lives;
+
         CreateCarriers(); // creates and places carriers evenly along unit circle
         UpdateMaxBallHunterCount(); // checks map if we are should send in different counts
         CreateBallPool(); // get maximum number of balls spawned & ready to display
         CreateHunterPool(); // get maximum number of balls spawned & ready to display
     }
 
-    bool gameStarted = false;
     void Update()
     {
-        if (gameStarted) return;
-        if(Input.GetKeyUp(KeyCode.Space))
+        if (Input.GetKeyUp(KeyCode.Space))
         {
+            if (gameStarted) { 
+                Restart();
+                return;
+            }
             gameStarted = true;
             GiveFreeBalls();
             SendFreeHunters();

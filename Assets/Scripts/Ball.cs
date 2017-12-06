@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class Ball : MonoBehaviour {
 
@@ -33,18 +31,15 @@ public class Ball : MonoBehaviour {
         }
     }
     
-    BallCarrier target;
+    private BallCarrier target;
+    private Rigidbody rb;
 
-    Rigidbody rb;
-
-    public bool isMoving;
-
-    float speed;
+    private bool isMoving;
+    private float speed;
     
     // Use this for initialization
     void Start () {
         rb = GetComponent<Rigidbody>();
-        //isMoving = false; // causing issues on init on gameloop
 	}
 	
 	// Update is called once per frame
@@ -81,13 +76,13 @@ public class Ball : MonoBehaviour {
         }
         else
         {
-            speed = BallCarrier.DEFAULT_THROW_STRENGTH; // instant instead?
+            // Should only happens on force gives (i.e. carrier didnt throw)
+            speed = BallProperties.speed; 
         }
 
         target = t;
         Owner = target;
         isMoving = true;
-
     }
 
     void OnTriggerEnter(Collider other)
