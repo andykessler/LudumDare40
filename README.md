@@ -32,7 +32,11 @@ Thanks for playing my first Ludum Dare game! I look forward to hearing your feed
 
 - **`Left Mouse Button`** click on opponent to throw the ball
 
-- Control different properties of the game through interactive UI sliders
+# Configuration Changes
+
+_**If you find any values that work particularly well please share them!**_
+
+Control different properties of the game through the interactive UI sliders. This includes values like `maxSpeed`, `acceleration`, `lives`, etc. Currently some values require a restart of the game (through `Space` commmand), while others will reflect immiediately. Hopefully the UI is clear enough to show this distinction. 
 
 # Bugs / Issues / Suggestions
 
@@ -43,10 +47,6 @@ Sometimes the purple capsules go on high velocity off the map, but don't worry t
 # Code
 
 Towards the end of Ludum Dare 40, when submission deadlines started to approach, I started to lose quality in my overall game design and binding flow. I started noticing myself put in more hacks that I'll "resolve later"--sounds like a typical hackathon to me. Because of this there are a few places in my code that I want to revisit to remove coupling and non-optimal design patterns.
-
-# Configuration Changes
-
-I will soon be releasing a patch for any bugs discovered while testing, as well as a configurable settings for the game so you can run with different amounts of carriers, balls, hunters, and their various speeds. There are various tunings you can do to units to creates interesting behaviors that will be fun to experiment with! I will publish that after I get some much needed sleep.
 
 # Future
 
