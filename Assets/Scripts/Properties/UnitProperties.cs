@@ -1,10 +1,12 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 
-public /*abstract*/ class UnitProperties // Extend dictionary?
+public abstract class UnitProperties
 {
     // FIXME Don't assume everything is float!
     protected Dictionary<string, float> d;
+
+    //protected bool isDirty;
 
     protected UnitProperties()
     {
@@ -35,7 +37,12 @@ public /*abstract*/ class UnitProperties // Extend dictionary?
     public void Set(string key, float value)
     {
         d[key] = value;
+        //isDirty = true;
+        Update();
     }
+
+    // FIXME you have to remember to call this in constructor of children?
+    protected abstract void Update();
 
     // have update callback a func on UI change
 

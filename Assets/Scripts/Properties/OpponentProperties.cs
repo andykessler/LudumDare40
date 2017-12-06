@@ -26,9 +26,26 @@
         d[KEY_MASS] = 2f;
         d[KEY_ROTATION_SPEED] = 0.3f;
         d[KEY_THROW_STRENGTH] = 200f;
+
         d[KEY_MIN_THROW_TIMER] = 1.5f;
         d[KEY_MAX_THROW_TIMER] = 4.2f;
         d[KEY_MIN_ROTATE_TIMER] = 0.25f;
         d[KEY_MAX_ROTATE_TIMER] = 1.5f;
+
+        Update();
+    }
+
+    override protected void Update()
+    {
+        speed = d[KEY_SPEED];
+        maxSpeed = d[KEY_MAX_SPEED];
+        mass = d[KEY_MASS];
+        rotationSpeed = d[KEY_ROTATION_SPEED];
+        throwStrength = d[KEY_THROW_STRENGTH];
+
+        minThrowTimer = d[KEY_MIN_THROW_TIMER];
+        maxThrowTimer = d[KEY_MAX_THROW_TIMER];
+        minRotateTimer = d[KEY_MIN_ROTATE_TIMER];
+        maxRotateTimer = d[KEY_MAX_ROTATE_TIMER];
     }
 }

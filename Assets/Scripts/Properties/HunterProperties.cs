@@ -33,5 +33,20 @@
         d[KEY_MASS] = 0.05f;
         d[KEY_COLLISION_RADIUS] = 6f;
         d[KEY_ROTATION_SPEED] = 0f;
+
+        Update();
+    }
+
+    override protected void Update()
+    {
+        speed = d[KEY_SPEED];
+        maxSpeed = d[KEY_MAX_SPEED];
+        acceleration = d[KEY_ACCELERATION];
+        maxAcceleration = d[KEY_MAX_ACCELERATION];
+        dampening = d[KEY_DAMPENING];
+        //maxDampening = d[KEY_MAX_DAMPENING];
+        mass = d[KEY_MASS];
+        rotationSpeed = d[KEY_ROTATION_SPEED];
+        collisionRadius = d[KEY_COLLISION_RADIUS];
     }
 }
