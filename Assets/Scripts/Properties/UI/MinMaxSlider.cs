@@ -4,7 +4,7 @@ using UnityEngine.UI;
 using System;
 
 public class MinMaxSlider : MonoBehaviour {
-    
+
     public float min;
     public float max;
 
@@ -15,11 +15,16 @@ public class MinMaxSlider : MonoBehaviour {
 
     private Slider minSlider, maxSlider;
 
-    private Text textRange;
+    private UnitPropertyManager manager;
+
+    private Text text;
 
     // Use this for initialization
-    void Start () {
+    void Start() {
         Slider[] s = GetComponentsInChildren<Slider>();
+        manager = GetComponentInParent<UnitPropertyManager>();
+        text = GetComponentInChildren<Text>();
+
         if (s.Length != 2) throw new MissingComponentException();
 
         minSlider = s[0];
@@ -33,22 +38,40 @@ public class MinMaxSlider : MonoBehaviour {
 
         minSlider.value = min;
         maxSlider.value = max;
+
+        UpdateText();
+
     }
 
     // this is a callback for us to know to alter settings files;
     public void HasChanged()
     {
-        if(maxSlider.value < minSlider.value)
+        if (maxSlider.value < minSlider.value)
         {
             Slider temp = maxSlider;
             maxSlider = minSlider;
             minSlider = temp;
         }
-        
-        textRange.text = String.Format("{0}: {1} - {2}", transform.parent.name, minSlider.value, maxSlider.value);
 
-        BaseEventData eventData = new BaseEventData(EventSystem.current);
-        eventData.selectedObject = gameObject;
-        customCallback.Invoke(eventData);
+        //text.text = String.Format("{0}: {1} - {2}", transform.parent.name, minSlider.value, maxSlider.value);
+        //Debug.Log(String.Format("Updating {0} from {1} to {2}",
+        //valueName, manager.ReadProperty(valueName), mainSlider.value));
+        manager.UpdateProperty(minName, minSlider.value);
+        manager.UpdateProperty(maxName, maxSlider.value);
+
+        UpdateText();
+
+
+        //BaseEventData eventData = new BaseEventData(EventSystem.current);
+        //eventData.selectedObject = gameObject;
+        //customCallback.Invoke(eventData);
     }
+
+    void UpdateText()
+    {
+        text.text = String.Format("{0}: {1}\n{2}: {3}", 
+            minName, manager.ReadProperty(minName),
+            maxName, manager.ReadProperty(maxName));
+    }
+
 }
