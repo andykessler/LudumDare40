@@ -33,7 +33,6 @@ public abstract class UnitProperties
         }
     }
 
-    // Switch visibility to just package?
     public void Set(string key, float value)
     {
         d[key] = value;
@@ -43,20 +42,5 @@ public abstract class UnitProperties
 
     // FIXME you have to remember to call this in constructor of children?
     protected abstract void Update();
-
-    // have update callback a func on UI change
-
-    // use our own callback to broadcast to all
-    // game objects of certain type to load from our new dict
-
-    // in there we use hardcoded string key names (consistent)
-    //      eventually move to classes that inherit this with string names with their default?
-    // handle assignment of these values
-    // if they would effect current gameplay we can adjust SOME of them
-    // CANT adjust ball#, hunter#, player#, life#
-    // CAN clamp maximum speed, accel, etc.
-    // NEED single sliders for the singular values.
-
-    // then next time make sure game obeys these values.
 }
 

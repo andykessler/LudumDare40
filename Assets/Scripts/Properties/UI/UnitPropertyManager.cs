@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
 
 public class UnitPropertyManager : MonoBehaviour
 {
@@ -9,11 +8,11 @@ public class UnitPropertyManager : MonoBehaviour
     UnitProperties properties;
 
     Text text;
-    MinMaxSlider[] minMaxSliders;
-    Slider[] valSliders;
+
+    SliderConstraint[] constraints;
 
     // Use this for initialization
-    void Awake()
+    void Start()
     {
         switch(unitName)
         {
@@ -41,15 +40,24 @@ public class UnitPropertyManager : MonoBehaviour
         text = GetComponentInChildren<Text>();
         text.text = properties.GetType().Name;
 
+        constraints = GetComponentsInChildren<SliderConstraint>();
+
         // TODO Right now we have prebuilt UI elements, later should be dynamic.
         //for each range value create a new min max slider as child?
         //for each single value create a new slider as child?
 
     }
 
-    public void UpdateProperty(string key, float value)
+    public bool UpdateProperty(string key, float value)
     {
+        foreach(SliderConstraint scs in constraints)
+        {
+            if(!scs.Holds()) {
+                return false;
+            }
+        }
         properties.Set(key, value);
+        return true;
     }
 
     public float ReadProperty(string key)
