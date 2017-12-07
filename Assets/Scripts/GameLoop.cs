@@ -55,6 +55,8 @@ public class GameLoop : MonoBehaviour {
     private static int maxBallCount;
     private static int maxHunterCount;
 
+    private static Vector3 scale;
+
     // Should be called only once
     void Awake()
     {
@@ -73,7 +75,8 @@ public class GameLoop : MonoBehaviour {
         hunters = new List<BallHunter>();
         huntersFree = new List<BallHunter>();
 
-        carrierOffsetY = Vector3.up * playerPrefab.transform.localScale.y;
+        scale = playerPrefab.transform.localScale;
+        carrierOffsetY = Vector3.up * scale.y;
     }
 
     // Use this for initialization (see if we want to move any up to awake)
@@ -171,11 +174,11 @@ public class GameLoop : MonoBehaviour {
           
         }
     }
-
-
+    
     static void SendFreeHunters()
     {
         // TODO Send out no more than MAX count (will allow decrease over time)
+        //int extraBalls = hunters.Count - maxBallCount;
         for (int i = huntersFree.Count - 1; i >= 0; i--)
         {
             BallHunter bh = huntersFree[i];
@@ -228,13 +231,14 @@ public class GameLoop : MonoBehaviour {
     static void UpdateMaxBallHunterCount()
     {
         maxBallCount = (int)Mathf.Max(GameProperties.balls,1f);
-        maxHunterCount = (int)Mathf.Min(Mathf.Max(GameProperties.hunters, 1f),numPlayersLeft-1f);
+        //maxHunterCount = (int)Mathf.Min(Mathf.Max(GameProperties.hunters, 1f),numPlayersLeft-1f);
+        maxHunterCount = (int)GameProperties.hunters;
     }
 
     void CreateCarriers()
     {
         // TODO part of the extract configs, ensure scale is consistent
-        float amplitude = transform.localScale.z * (5f * 0.8f);
+        float amplitude = scale.z * (5f * 0.8f);
         float radian_ratio = (2 * Mathf.PI) / GameProperties.carriers;
 
         for (int i = 0; i < GameProperties.carriers; i++)
@@ -281,10 +285,18 @@ public class GameLoop : MonoBehaviour {
     {
         if (hunters.Count < maxHunterCount)
         {
+            float amplitude = scale.z * (5f * 0.5f); // FIXME? magic numbers
+            float radian_ratio = (2 * Mathf.PI) / GameProperties.hunters;
             for (int i = hunters.Count; i < maxHunterCount; i++)
             {
                 Transform t = Instantiate(hunterPrefab, carrierOffsetY, Quaternion.identity);
                 BallHunter bh = t.GetComponent<BallHunter>();
+
+                float r = radian_ratio * i;
+                Vector3 v = new Vector3(Mathf.Cos(r), 0f, Mathf.Sin(r));
+                t.position += v * amplitude;
+                t.LookAt(Vector3.up * t.transform.position.y);
+
                 hunters.Add(bh);
                 huntersFree.Add(bh); // TODO Hide until needed, use add/remove listener to toggle display
                 //addFreeHunterEvent();
