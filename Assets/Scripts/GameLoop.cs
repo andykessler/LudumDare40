@@ -1,7 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-//using UnityEngine.UI; // extract later?
+using UnityEngine.UI; // extract later?
 
 // FIXME Need C# 6+ for this, could reduce verboseness
 //using static Constants;
@@ -11,7 +11,10 @@ public class GameLoop : MonoBehaviour {
     public static bool gameStarted = false;
     public static bool roundStarted = false;
 
-    //public Text text;
+    // cause of calling it from static function :(
+    // fix by moving it into update method instead?
+    public Text gameOverText;
+    private static Text endText;
 
     // do we need own reference?
     private static Transform playerPrefab;
@@ -60,6 +63,8 @@ public class GameLoop : MonoBehaviour {
     // Should be called only once
     void Awake()
     {
+        endText = gameOverText;
+
         playerPrefab = Constants.playerPrefab;
         opponentPrefab = Constants.opponentPrefab;
         hunterPrefab = Constants.hunterPrefab;
@@ -88,6 +93,7 @@ public class GameLoop : MonoBehaviour {
     void Restart()
     {
         gameStarted = true;
+        endText.gameObject.SetActive(false);
 
         // Destroy all current game objects
         // FIXME What about pooling / saving for later instead?
@@ -238,7 +244,7 @@ public class GameLoop : MonoBehaviour {
     void CreateCarriers()
     {
         // TODO part of the extract configs, ensure scale is consistent
-        float amplitude = scale.z * (5f * 0.8f);
+        float amplitude = scale.z * (10f * 0.8f); // TODO remove magic numbers
         float radian_ratio = (2 * Mathf.PI) / GameProperties.carriers;
 
         for (int i = 0; i < GameProperties.carriers; i++)
@@ -285,7 +291,7 @@ public class GameLoop : MonoBehaviour {
     {
         if (hunters.Count < maxHunterCount)
         {
-            float amplitude = scale.z * (5f * 0.5f); // FIXME? magic numbers
+            float amplitude = scale.z * (5f * 0.5f); // TODO remove magic numbers
             float radian_ratio = (2 * Mathf.PI) / GameProperties.hunters;
             for (int i = hunters.Count; i < maxHunterCount; i++)
             {
@@ -319,6 +325,7 @@ public class GameLoop : MonoBehaviour {
             if (Constants.isHumanPlayers[carriers.IndexOf(dead)])
             {
                 Debug.Log("Player is elimiated!");
+                endText.gameObject.SetActive(true);
             }
             carriers.Remove(dead);
             carriersFree.Remove(dead);

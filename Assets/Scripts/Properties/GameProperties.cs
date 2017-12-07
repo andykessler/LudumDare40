@@ -16,7 +16,7 @@
     {
         d[KEY_BALLS] = 1f;
         d[KEY_HUNTERS] = 1f;
-        d[KEY_CARRIERS] = 2f;
+        d[KEY_CARRIERS] = 4f;
         d[KEY_LIVES] = 3f;
 
         Update();
