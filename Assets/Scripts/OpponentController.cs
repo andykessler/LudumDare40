@@ -45,7 +45,6 @@ public class OpponentController : MonoBehaviour {
             else if(throwBallTimer <= 0)
             {
                 BallCarrier t = GameLoop.GetFreeBallCarrier();
-                Debug.Log("TRYING TO THROW TO " + t.name);
                 if(t != null)
                 {
                     self.SendMessage("ThrowBall", t);
