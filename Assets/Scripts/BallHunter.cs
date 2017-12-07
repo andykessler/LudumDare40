@@ -130,9 +130,13 @@ public class BallHunter : MonoBehaviour {
         Ball b = GameLoop.GetFreeBall();
         if (b != null)
         {
-            Debug.Log("Found a precious!");
+            Debug.Log("Found a new precious!");
             Precious = b;
             HasTakenPrecious = false;
+        }
+        else if(GameLoop.balls.Count > 0)
+        {
+            Precious = GameLoop.balls[(int)(Random.value * (GameLoop.balls.Count-1))];
         }
         else
         {

@@ -310,8 +310,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a35bae9e6377c064bac24f4d67da2334, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameStarted: 0
-  roundStarted: 0
 --- !u!4 &309677144
 Transform:
   m_ObjectHideFlags: 0
