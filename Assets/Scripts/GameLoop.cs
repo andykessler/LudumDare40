@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI; // extract later?
 
 // FIXME Need C# 6+ for this, could reduce verboseness
 //using static Constants;
@@ -52,6 +53,8 @@ public class GameLoop : MonoBehaviour {
     public bool gameStarted = false;
     public bool roundStarted = false;
 
+    public Text text;
+
     // Should be called only once
     void Awake()
     {
@@ -87,8 +90,8 @@ public class GameLoop : MonoBehaviour {
         // FIXME What about pooling / saving for later instead?
         // Consider try catch exception continue
         foreach(BallCarrier bc in carriers) { Destroy(bc.gameObject); }
-        foreach(BallCarrier bc in carriers) { Destroy(bc.gameObject); }
-        foreach(BallCarrier bc in carriers) { Destroy(bc.gameObject); }
+        foreach(BallCarrier bc in carriersFree) { Destroy(bc.gameObject); }
+        foreach(BallCarrier bc in carriersDead) { Destroy(bc.gameObject); }
         foreach(Ball b in balls) { Destroy(b.gameObject); }
         foreach(Ball b in ballsFree) { Destroy(b.gameObject); }
         foreach(BallHunter bh in hunters) { Destroy(bh.gameObject); }
@@ -290,6 +293,7 @@ public class GameLoop : MonoBehaviour {
     {
         dead.currentLives -= 1;
         numLivesLeft -= 1;
+
         if (dead.currentLives == 0) {
             // cant respawn
             Debug.Log("Player Defeated!");
@@ -297,16 +301,28 @@ public class GameLoop : MonoBehaviour {
 
             // KILL IT WITH FIRE!!!
             carriersFree.Remove(dead); // not sure if its actually in there right now
-            carriers.Remove(dead); // what is conseq of this?
-            Destroy(dead.gameObject);
-            // permantely hidden, if player show game over!!
-            return;
-        }
+            if (Constants.isHumanPlayers[carriers.IndexOf(dead)])
+            {
+                Debug.Log("Player is elimiated!");
+            }
+            carriers.Remove(dead);
+            carriersFree.Remove(dead);
+            carriersDead.Add(dead);
+            dead.GetComponent<MeshRenderer>().enabled = false; //  hidden
+            //Destroy(dead.gameObject); // conseqs of this?
 
+            if (carriers.Count == 1) // game over! last man wins!
+            {
+                Debug.Log(carriers[0] + " wins!");
+                return;
+            }
+        }
+        else
+        {
+            dead.StartCoroutine(WaitAndRespawn(dead, 2f)); // TODO Extract wait to config constant
+        }
         // dead guy shouldnt be doing things! some portal object maybe?
         // fix so we dont pass dead twice  
-
-        dead.StartCoroutine(WaitAndRespawn(dead, 2f)); // TODO Extract wait to config constant
         dead.StartCoroutine(WaitGiveChaseBalls(4f)); // TODO Extract wait to config constant
     }
 
