@@ -32,7 +32,7 @@
         //d[KEY_MAX_DAMPENING] = 1f;
         d[KEY_MASS] = 0.05f;
         d[KEY_COLLISION_RADIUS] = 6f;
-        d[KEY_ROTATION_SPEED] = 0f;
+        d[KEY_ROTATION_SPEED] = 20f;
 
         Update();
     }
