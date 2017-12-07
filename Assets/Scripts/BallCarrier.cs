@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class BallCarrier : MonoBehaviour {
 
@@ -37,6 +35,11 @@ public class BallCarrier : MonoBehaviour {
             Debug.Log("Can't throw the ball. Target has a ball already!");
             return;
         }
+        if (ball.Owner != this)
+        {
+            Debug.Log("Can't throw the ball. Have not caught it yet!");
+            return;
+        }
         ball.SendMessage("ThrowTo", target); // pass strength parameter here? and change owner here?
         ball = null;
     }
@@ -45,11 +48,12 @@ public class BallCarrier : MonoBehaviour {
     {
         if (HasBall()) // redundant because only this is called by trigger, and you already have been assigned
         {
-            // Debug.Log("Can't receive the ball. Already have a ball!");
+            //Debug.Log("Can't receive the ball. Already have a ball!");
             return;
         }
         // is something else blocking you from getting a ball? other rules? distance?
         ball = b;
+        GameLoop.carriersFree.Remove(this);
     }
 
     void Kill()
@@ -68,12 +72,7 @@ public class BallCarrier : MonoBehaviour {
             GetComponent<OpponentController>().enabled = false;
         }
 
-        GameLoop.KillAndRespawnIfHaveLife(this); // call this after short delay.
-        // remove 1 from life
-        // Call death animation/death script, aftwerwards...
-        // hide carrier from display until we respawn
-        // if remaining lives is greater than 0, respawn after certain amount of time
-
+        GameLoop.KillAndRespawnIfHaveLife(this);
     }
 
     public void Respawn()
