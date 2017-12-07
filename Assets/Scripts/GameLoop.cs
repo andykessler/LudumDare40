@@ -1,12 +1,17 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI; // extract later?
+//using UnityEngine.UI; // extract later?
 
 // FIXME Need C# 6+ for this, could reduce verboseness
 //using static Constants;
 
 public class GameLoop : MonoBehaviour {
+    
+    public static bool gameStarted = false;
+    public static bool roundStarted = false;
+
+    //public Text text;
 
     // do we need own reference?
     private static Transform playerPrefab;
@@ -49,11 +54,6 @@ public class GameLoop : MonoBehaviour {
 
     private static int maxBallCount;
     private static int maxHunterCount;
-
-    public bool gameStarted = false;
-    public bool roundStarted = false;
-
-    public Text text;
 
     // Should be called only once
     void Awake()
@@ -138,8 +138,16 @@ public class GameLoop : MonoBehaviour {
     static void GiveFreeBalls()
     {
         // TODO Send out no more than MAX count (will allow decrease over time)
+        int extraBalls = balls.Count - maxBallCount;
         for(int i = ballsFree.Count - 1; i >= 0; i--)
         {
+            if(extraBalls > 0)
+            {
+                extraBalls--;
+                Ball extra = ballsFree[i];
+                balls.Remove(extra);
+                ballsFree.RemoveAt(i);
+            }
             if(ballsFree[i].Owner != null)
             {
                 // do anything here?
@@ -219,13 +227,8 @@ public class GameLoop : MonoBehaviour {
     // need to also have a check for total lives left and what to do for count
     static void UpdateMaxBallHunterCount()
     {
-
-        //maxBallCount = (int)(numPlayersLeft / Constants.ballPlayerRatio);
-        //if (maxBallCount == 0) maxBallCount = 1;
-        //maxHunterCount = maxBallCount;
-
         maxBallCount = (int)Mathf.Max(GameProperties.balls,1f);
-        maxHunterCount = (int)Mathf.Max(GameProperties.hunters, 1f);
+        maxHunterCount = (int)Mathf.Min(Mathf.Max(GameProperties.hunters, 1f),numPlayersLeft-1f);
     }
 
     void CreateCarriers()

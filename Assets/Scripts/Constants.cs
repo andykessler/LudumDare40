@@ -13,9 +13,4 @@ public class Constants
     public static bool[] isHumanPlayers = { true, false, false, false, false, false, false, false };
     public static string[] playerNames = { "Human0", "Bot1", "Bot2", "Bot3", "Bot4", "Bot5", "Bot6", "Bot7" }; // could just be made from bool and color
     public static Color[] playerColors = { Color.red, Color.blue, Color.green, Color.yellow, Color.magenta, Color.white, Color.black, Color.grey };
-
-    // legacy code (remove?)
-    //// TODO Use numLivesLeft/NumPlayersLeft to create key for # of new balls/hounds to spawn
-    //public static float ballPlayerRatio = 2f;
-    //public static int maxHunterCount = maxBallCount;
 }
