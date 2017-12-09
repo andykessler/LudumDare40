@@ -14,6 +14,10 @@ public class PlayerController : MonoBehaviour {
     private Rigidbody rb;
     private BallCarrier self;
 
+
+    //Plane plane = new Plane(Vector3.up, Vector3.zero);
+    public Plane plane;
+
     // Use this for initialization
     void Start () {
         rb = GetComponent<Rigidbody>();
@@ -34,6 +38,27 @@ public class PlayerController : MonoBehaviour {
         rb.AddForce(PlayerProperties.speed * dir.normalized, ForceMode.Impulse);
     }
 
+ 
+    void LateUpdate()
+    {
+        if (Input.GetKeyUp(KeyCode.B))
+        {
+            Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+            float ent;
+            if (plane.Raycast(ray, out ent))
+            {
+                Debug.Log("Plane Raycast hit at distance: " + ent);
+                Vector3 hitPoint = ray.GetPoint(ent);
+                GameObject go = GameObject.CreatePrimitive(PrimitiveType.Cube);
+                go.transform.position = hitPoint;
+                Debug.DrawRay(ray.origin, ray.direction * ent, Color.green);
+            }
+            else
+                Debug.DrawRay(ray.origin, ray.direction * 300, Color.red);
+
+        }
+    }
+
     // Update is called once per frame
     void Update () {
         HandleInput();
@@ -49,15 +74,25 @@ public class PlayerController : MonoBehaviour {
         HandleRotation();
 	}
 
+    public Vector3 GetWorldPositionOnPlane(Vector3 screenPosition, float z)
+    {
+        Ray ray = Camera.main.ScreenPointToRay(screenPosition);
+        Plane plane = new Plane(Vector3.up, Vector3.zero);
+        float distance;
+        plane.Raycast(ray, out distance);
+        return ray.GetPoint(distance);
+    }
+
+
     void HandleInput()
     {
         if (Input.GetMouseButton(1) || Input.GetMouseButtonUp(1)) // Right click up event
         {
-            Ray inputRay = Camera.main.ScreenPointToRay(Input.mousePosition);
-            RaycastHit hit;
-            if (Physics.Raycast(inputRay, out hit, LayerMask.GetMask("Ground")))
+            Vector3 result = GetWorldPositionOnPlane(Input.mousePosition, Camera.main.transform.position.z);
+
+            if (result != null)
             {
-                target = hit.point;
+                target = result;
                 target.y = transform.position.y;
                 dir = Vector3.Normalize(target - transform.position);
                 isMoving = true;
@@ -74,8 +109,15 @@ public class PlayerController : MonoBehaviour {
                 if (hit.rigidbody != null) // check it is also tagged "Opponent"? Redundant? 
                 {
                     BallCarrier throwTarget = hit.rigidbody.transform.GetComponent<BallCarrier>();
-                    Debug.Log(throwTarget.transform.name);
-                    self.SendMessage("ThrowBall", throwTarget);
+                    if(throwTarget != null)
+                    {
+                        Debug.Log(throwTarget.transform.name);
+                        self.SendMessage("ThrowBall", throwTarget);
+                    }
+                    else
+                    {
+                        Debug.Log("That's not a BallCarrier.");
+                    }
                 }
             }
         }
