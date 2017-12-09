@@ -10,6 +10,7 @@ public class SettingsController : MonoBehaviour {
         KeyCode.Alpha5
     };
 
+    private int currManager;
     private UnitPropertyManager[] managers;
 
     void Start () {
@@ -19,6 +20,7 @@ public class SettingsController : MonoBehaviour {
             managers[i].gameObject.SetActive(false);
         }
         ShowManager(-1); // Hide all managers to start
+        currManager = -1;
 	}
 	
 	void Update () {
@@ -27,12 +29,15 @@ public class SettingsController : MonoBehaviour {
             if(Input.GetKeyUp(hotkeys[i]))
             {
                 GameObject go = managers[i].gameObject;
-                //if(go.activeInHierarchy)
-                //{
-                //    go.SetActive(false);
-                //}
-                ShowManager(i);
-            
+                if(currManager == i)
+                {
+                    go.SetActive(false);
+                }
+                else
+                {
+                    currManager = i;
+                    ShowManager(i);
+                }
                 // only handle one input at a time
                 // not sure if multiple possible for key up
                 return; 

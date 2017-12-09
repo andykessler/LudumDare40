@@ -9,6 +9,8 @@ TagManager:
   - Opponent
   - Ground
   - Wall
+  - target
+  - ClickMarker
   layers:
   - Default
   - TransparentFX
